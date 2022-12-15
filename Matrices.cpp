@@ -24,7 +24,7 @@ void printVector(vector<vector<double>> v, bool augmented = false) {
       cout << endl;
     }
   } else {
-    cout << "{" << endl;
+    cout << "{ ";
     for (auto a : v) {
       cout << "{";
       for (auto b : a) {
@@ -54,7 +54,7 @@ vector<vector<double>> getMinor(vector<vector<double>> A, int row, int col) {
   return minor;
 }
 
-// Returns the determinant of square matrix A
+// Returns the determinant of a square matrix using Laplace expansion
 double getDeterminant(vector<vector<double>> A) {
   if (A.size() == 1) {
     return A[0][0];
@@ -86,7 +86,7 @@ vector<vector<double>> getIdentityMatrix(int n) {
   return identity;
 }
 
-// Compares two doubleing point numbers and returns true if they are
+// Compares two floating point numbers and returns true if they are
 // approximately equal
 bool approxEqual(double a, double b) {
   return abs(a - b) < 1e-9;
@@ -155,7 +155,7 @@ vector<vector<double>> addMatrixRows(vector<vector<double>> A,
   return A;
 }
 
-// Swaps rows of matrix
+// Swaps two rows of matrix.
 vector<vector<double>> swapMatrixRows(vector<vector<double>> A,
                                       int row1,
                                       int row2) {
@@ -165,17 +165,18 @@ vector<vector<double>> swapMatrixRows(vector<vector<double>> A,
   return A;
 }
 
-// Scales a row of matrix by dividing each element by k
+// Scales a row of matrix by dividing each element by k.
 vector<vector<double>> scaleMatrixRow(vector<vector<double>> A,
                                       int row,
                                       double k) {
   for (int i = 0; i < A[0].size(); i++) {
-    A[row][i] /= k;
+    if (!approxEqual(A[row][i], 0))
+      A[row][i] /= k;
   }
   return A;
 }
 
-// Returns row index of a row after startRow where A[i][col] != 0
+// Returns row index of a row after startRow where A[i][col] != 0.
 int getSpecialRow(vector<vector<double>> A, int startRow, int col) {
   for (int i = startRow; i < A.size(); i++) {
     if (!approxEqual(A[i][col], 0))
@@ -193,9 +194,11 @@ vector<vector<double>> getInverseMatrix(vector<vector<double>> v) {
     return {{}};
   }
   vector<vector<double>> AugmentedMatrix = getAugmentedMatrix(v);
+  printVector(AugmentedMatrix, true);
 
   // form an upper triangular matrix with leading diagonal 1 in LHS of augmented
   // matrix
+  cout << "Create an upper triangular matrix in LHS" << endl;
   for (int i = 0; i < v.size(); i++) {
     if (approxEqual(AugmentedMatrix[i][i], 0)) {
       // swap rows
@@ -204,24 +207,57 @@ vector<vector<double>> getInverseMatrix(vector<vector<double>> v) {
 
       // swap rows
       AugmentedMatrix = swapMatrixRows(AugmentedMatrix, i, row);
+
+      cout << "Swap rows " << row << "and " << i << endl;
     }
-    AugmentedMatrix = scaleMatrixRow(AugmentedMatrix, i, AugmentedMatrix[i][i]);
+
+    // output step
+    if (!approxEqual(AugmentedMatrix[i][i], 1)) {
+      cout << "Divide R" << i << " by " << AugmentedMatrix[i][i] << endl;
+      AugmentedMatrix =
+          scaleMatrixRow(AugmentedMatrix, i, AugmentedMatrix[i][i]);
+      printVector(AugmentedMatrix, true);
+    }
+
     for (int j = i + 1; j < v.size(); j++) {
+      // output step
+      if (approxEqual(AugmentedMatrix[j][i], 1)) {
+        cout << "R" << j << "  - R" << i << endl;
+      } else {
+        cout << "R" << j << "  - R" << i << " * " << AugmentedMatrix[j][i]
+             << endl;
+      }
       AugmentedMatrix =
           addMatrixRows(AugmentedMatrix, j, i, -AugmentedMatrix[j][i]);
+
+      printVector(AugmentedMatrix, true);
     }
   }
-  printVector(AugmentedMatrix, true);
 
   // convert upper triangular matrix in LHS to an identity matrix
+  cout << "Convert upper triangular matrix in LHS to an identity matrix"
+       << endl;
   for (int i = v.size() - 2; i >= 0; i--) {
     for (int j = i; j >= 0; j--) {
-      // R_j - R_{j}{i+1} x R_{i+1}
+      if (approxEqual(AugmentedMatrix[j][i + 1], 0)) {
+        // this IF statement is optional
+        continue;
+      }
+
+      // output step
+      if (approxEqual(AugmentedMatrix[j][i + 1], 1)) {
+        cout << "R" << j << "  - R" << i + 1 << endl;
+      } else {
+        cout << "R" << j << "  - R" << i + 1 << " * "
+             << AugmentedMatrix[j][i + 1] << endl;
+      }
+
       AugmentedMatrix =
           addMatrixRows(AugmentedMatrix, j, i + 1, -AugmentedMatrix[j][i + 1]);
+
+      printVector(AugmentedMatrix, true);
     }
   }
-  printVector(AugmentedMatrix, true);
 
   // extract inverse matrix from augmented matrix
   vector<vector<double>> inverseMatrix(v.size(), vector<double>(v.size(), 0));
@@ -235,7 +271,7 @@ vector<vector<double>> getInverseMatrix(vector<vector<double>> v) {
 }
 
 // Run tests for functions
-void tester() {
+void runTests() {
   vector<vector<double>> A, expected, received;
 
   // 4x4 matrix with inverse
@@ -350,17 +386,36 @@ void tester() {
        << endl
        << endl;
 
-  // 1x1 matrix
-  A = {{5}};
-  expected = {{0.2}};
+  // 2x2 matrix
+  A = {{5, 1}, {-1, 7}};
+  expected = {
+      {
+          0.1944444444,
+          -0.02777777778,
+      },
+      {
+          0.02777777778,
+          0.1388888889,
+      },
+  };
   received = getInverseMatrix(A);
   printVector(received);
   cout << "Test 6 : "
        << ((isEqualMatrices(received, expected) == 1) ? "Passed" : "Failed")
        << endl
        << endl;
+
+  // 1x1 matrix
+  A = {{5}};
+  expected = {{0.2}};
+  received = getInverseMatrix(A);
+  printVector(received);
+  cout << "Test 7 : "
+       << ((isEqualMatrices(received, expected) == 1) ? "Passed" : "Failed")
+       << endl
+       << endl;
 }
 int main() {
-  tester();
+  runTests();
   return 0;
 }
