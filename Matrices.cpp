@@ -3,38 +3,43 @@
 #include <ctime>
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
 using namespace std;
 
-// Prints a matrix or an augmented matrix
-void printVector(vector<vector<double>> v, bool augmented = false) {
-  const int dp = 10;
-  if (augmented) {
+// Returns a stringified version of a matrix, including augmented matrices.
+// By default, result is output to console.
+string printVector(vector<vector<double>> v,
+                   bool isAugmentedMatrix = false,
+                   bool printToConsole = true) {
+  std::stringstream stringRep;
+  const int dp = 3;
+  if (isAugmentedMatrix) {
     for (int row = 0; row < v.size(); row++) {
       for (int col = 0; col < 2 * v.size(); col++) {
-        if (col == v.size() - 1) {
-          cout << v[row][col] << " | ";
-        } else {
-          cout << v[row][col] << " ";
-        }
+        stringRep << setprecision(dp) << (v[row][col]);
+        stringRep << ((col == v.size() - 1) ? " | " : " ");
       }
-      cout << endl;
+      stringRep << "\n";
     }
   } else {
-    cout << "{ ";
+    stringRep << "{ ";
     for (auto a : v) {
-      cout << "{";
+      stringRep << "{";
       for (auto b : a) {
-        cout << setprecision(dp) << b << ", ";
+        stringRep << fixed << setprecision(dp) << b << ", ";
       }
-      cout << "}, ";
+      stringRep << "}, ";
     }
-    cout << "}" << endl;
+    stringRep << "}\n";
   }
-  cout << endl;
+  stringRep << "\n";
+  if (printToConsole)
+    cout << stringRep.str();
+  return stringRep.str();
 }
 
 // Returns the minor of the element at a given coordinates where A is a square
@@ -176,86 +181,107 @@ vector<vector<double>> scaleMatrixRow(vector<vector<double>> A,
   return A;
 }
 
-// Returns row index of a row after startRow where A[i][col] != 0.
-int getSpecialRow(vector<vector<double>> A, int startRow, int col) {
+// Returns the row index of a row after startRow having a non-zero entry in a
+// specified column. If no such row found, return startRow.
+int getNextPivotRow(vector<vector<double>> A, int startRow, int col) {
   for (int i = startRow; i < A.size(); i++) {
     if (!approxEqual(A[i][col], 0))
       return i;
   }
-  return -1;
+  // if
+  return startRow;
 }
+
 // Calculates the inverse of a square matrix using Gauss-Jordan Elimination
 // method and returns the result.
-vector<vector<double>> getInverseMatrix(vector<vector<double>> v) {
-  double determinant = getDeterminant(v);
-  cout << "Determinant: " << determinant << endl;
-  // if determinant is 0, no inverse matrix
-  if (approxEqual(0, determinant)) {
-    return {{}};
-  }
-  vector<vector<double>> AugmentedMatrix = getAugmentedMatrix(v);
-  printVector(AugmentedMatrix, true);
+vector<vector<double>> getInverseMatrix(vector<vector<double>> v,
+                                        bool printSteps = false) {
+  std::stringstream
+      stringRep;  // string containing all the steps to be printed.
+  vector<vector<double>> AugmentedMatrix =
+      getAugmentedMatrix(v);  // augmented matrix = [A | I]
+  stringRep << printVector(AugmentedMatrix, true, false);
 
-  // form an upper triangular matrix with leading diagonal 1 in LHS of augmented
-  // matrix
-  cout << "Create an upper triangular matrix in LHS" << endl;
+  // Convert left matrix of augmented matrix to an upper triangular matrix where
+  // each leading diagonal element is 0 or 1.
+  stringRep << "Create an upper triangular matrix in LHS" << endl;
   for (int i = 0; i < v.size(); i++) {
-    if (approxEqual(AugmentedMatrix[i][i], 0)) {
-      // swap rows
+    // Make AugmentedMatrix[i][i] a pivot if possible
+
+    // perform row swapping if required
+    if (approxEqual(AugmentedMatrix[i][i], 0) && i != v.size() - 1) {
       // get row index of row where i-th element is not a 0
-      int row = getSpecialRow(AugmentedMatrix, i + 1, i);
-
-      // swap rows
-      AugmentedMatrix = swapMatrixRows(AugmentedMatrix, i, row);
-
-      cout << "Swap rows " << row << "and " << i << endl;
+      int newPivotRow = getNextPivotRow(AugmentedMatrix, i + 1, i);
+      if (newPivotRow != i) {
+        // swap rows
+        AugmentedMatrix = swapMatrixRows(AugmentedMatrix, i, newPivotRow);
+        stringRep << "Swap rows " << newPivotRow << " and " << i << endl;
+        stringRep << printVector(AugmentedMatrix, true, false);
+      }
     }
 
-    // output step
-    if (!approxEqual(AugmentedMatrix[i][i], 1)) {
-      cout << "Divide R" << i << " by " << AugmentedMatrix[i][i] << endl;
+    // Scale current row to make pivot a 1
+    if (!approxEqual(AugmentedMatrix[i][i], 1) &&
+        !approxEqual(AugmentedMatrix[i][i], 0)) {
+      stringRep << "Divide R" << i << " by " << AugmentedMatrix[i][i] << endl;
       AugmentedMatrix =
           scaleMatrixRow(AugmentedMatrix, i, AugmentedMatrix[i][i]);
-      printVector(AugmentedMatrix, true);
+      stringRep << printVector(AugmentedMatrix, true, false);
     }
 
+    // make current column a pivot column
     for (int j = i + 1; j < v.size(); j++) {
       // output step
       if (approxEqual(AugmentedMatrix[j][i], 1)) {
-        cout << "R" << j << "  - R" << i << endl;
+        stringRep << "R" << j << "  - R" << i << endl;
       } else {
-        cout << "R" << j << "  - R" << i << " * " << AugmentedMatrix[j][i]
-             << endl;
+        stringRep << "R" << j << "  - R" << i << " * " << AugmentedMatrix[j][i]
+                  << endl;
       }
       AugmentedMatrix =
           addMatrixRows(AugmentedMatrix, j, i, -AugmentedMatrix[j][i]);
-
-      printVector(AugmentedMatrix, true);
+      stringRep << printVector(AugmentedMatrix, true, false);
     }
   }
 
+  // check if inverse matrix exists. For inverse matrix to exist, product of
+  // leading diagonal must be 1.
+  bool isInvertible = 1;
+  for (int i = 0; i < v.size(); i++) {
+    if (approxEqual(AugmentedMatrix[i][i], 0)) {
+      isInvertible = 0;
+      break;
+    }
+  }
+  if (!isInvertible) {
+    stringRep << "\n No Inverse \n";
+    if (printSteps)
+      cout << stringRep.str();
+    return {{}};
+  }
+
   // convert upper triangular matrix in LHS to an identity matrix
-  cout << "Convert upper triangular matrix in LHS to an identity matrix"
-       << endl;
+  stringRep << "Convert upper triangular matrix in LHS to an identity matrix"
+            << endl;
   for (int i = v.size() - 2; i >= 0; i--) {
     for (int j = i; j >= 0; j--) {
       if (approxEqual(AugmentedMatrix[j][i + 1], 0)) {
-        // this IF statement is optional
+        // this IF statement is for optimisation only and is optional
         continue;
       }
 
       // output step
       if (approxEqual(AugmentedMatrix[j][i + 1], 1)) {
-        cout << "R" << j << "  - R" << i + 1 << endl;
+        stringRep << "R" << j << "  - R" << i + 1 << endl;
       } else {
-        cout << "R" << j << "  - R" << i + 1 << " * "
-             << AugmentedMatrix[j][i + 1] << endl;
+        stringRep << "R" << j << "  - R" << i + 1 << " * "
+                  << AugmentedMatrix[j][i + 1] << endl;
       }
 
       AugmentedMatrix =
           addMatrixRows(AugmentedMatrix, j, i + 1, -AugmentedMatrix[j][i + 1]);
 
-      printVector(AugmentedMatrix, true);
+      stringRep << printVector(AugmentedMatrix, true, false);
     }
   }
 
@@ -266,7 +292,8 @@ vector<vector<double>> getInverseMatrix(vector<vector<double>> v) {
       inverseMatrix[row][col - v.size()] = AugmentedMatrix[row][col];
     }
   }
-
+  if (printSteps)
+    cout << stringRep.str();
   return inverseMatrix;
 }
 
@@ -310,7 +337,7 @@ void runTests() {
   // 4x4 matrix with no inverse
   A = {{1, 3, 2, 5}, {1, 3, 2, 5}, {2, 1, 0, 8}, {5, 4, 2, 9}};
   expected = {{}};
-  received = getInverseMatrix(A);
+  received = getInverseMatrix(A, true);
   printVector(received);
   cout << "Test 2 : "
        << ((isEqualMatrices(received, expected) == 1) ? "Passed" : "Failed")
