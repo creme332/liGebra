@@ -8,6 +8,9 @@
 #include <string>
 #include <vector>
 
+//#define DOCTEST_CONFIG_IMPLEMENT  // implements ONLY the test runner.
+//#include "../tests/doctest.h"
+
 using namespace std;
 
 // Returns a stringified version of a matrix, including augmented matrices.
@@ -253,8 +256,9 @@ vector<vector<double>> getInverseMatrix(vector<vector<double>> v,
       break;
     }
   }
+
   if (!isInvertible) {
-    stringRep << "\n No Inverse \n";
+    stringRep << "\nNo Inverse \n";
     if (printSteps)
       cout << stringRep.str();
     return {{}};
@@ -442,7 +446,8 @@ void runTests() {
        << endl
        << endl;
 }
-int main() {
-  runTests();
-  return 0;
-}
+//int main() {
+//  //runTests();
+//  cout << "hello world";
+//  return 0;
+//}
