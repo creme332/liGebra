@@ -1,8 +1,8 @@
 #pragma once
+#include <cmath>
 #include <iomanip>
 #include <iostream>
 #include <stdexcept>
-#include <cmath>
 #include <string>
 #include <vector>
 
@@ -49,7 +49,9 @@ class SquareMatrix {
 
   // Outputs approximations of a system of equations using either Gauss-Jacobi
   // or Gauss-Seidel method
-  void solve_approx(const vector<double> initial_approx, const int iterations);
+  void solve_approx(const bool useSeidelMethod,
+                    const vector<double> initial_approx,
+                    const int iterations);
 
   // getLUF();  // get LU factorization double getMinor();
   // vector<vector<double>> getInverseGauss(bool printSteps);

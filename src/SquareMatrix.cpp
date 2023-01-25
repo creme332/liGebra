@@ -87,7 +87,8 @@ bool SquareMatrix::is_diagonally_dominant() {
   return 1;
 }
 
-void SquareMatrix::solve_approx(const vector<double> initial_approx,
+void SquareMatrix::solve_approx(const bool useSeidelMethod,
+                                const vector<double> initial_approx,
                                 const int iterations) {
   if (!isAugmented) {
     throw std::invalid_argument("Matrix must augmented.");
@@ -107,14 +108,29 @@ void SquareMatrix::solve_approx(const vector<double> initial_approx,
         "Size of approximation array must be equal to number of variables");
   }
   // ! CHECK if solutions exist
-  
+
+  // Leading diagonal must be non-zero
+  // !TODO : allow variable dp
+
   // calculate approximations
   vector<vector<double>> table(iterations + 1, initial_approx);
   for (int row = 1; row < iterations + 1; row++) {
     for (int col = 0; col < vars; col++) {
       table[row][col] = myMatrix[col][vars];
+
+      // calculate value of table[row][col]
       for (int i = 0; i < vars; i++) {
-        if (i != col) {
+        if (i == col)
+          continue;
+        if (useSeidelMethod) {
+          // for seidel method, use the most recently calculated values to
+          // calculate new value
+          table[row][col] -=
+              myMatrix[col][i] * (i < col ? table[row][i] : table[row - 1][i]);
+
+        } else {
+          // for jacobi method, use values from previous iterations to
+          // calculate new value
           table[row][col] -= myMatrix[col][i] * table[row - 1][i];
         }
       }
