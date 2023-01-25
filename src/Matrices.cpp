@@ -8,9 +8,6 @@
 #include <string>
 #include <vector>
 
-//#define DOCTEST_CONFIG_IMPLEMENT  // implements ONLY the test runner.
-//#include "../tests/doctest.h"
-
 using namespace std;
 
 // Returns a stringified version of a matrix, including augmented matrices.
@@ -446,8 +443,3 @@ void runTests() {
        << endl
        << endl;
 }
-//int main() {
-//  //runTests();
-//  cout << "hello world";
-//  return 0;
-//}
