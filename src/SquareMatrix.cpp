@@ -89,16 +89,20 @@ bool SquareMatrix::is_diagonally_dominant() {
 
 void SquareMatrix::solve_approx(const bool useSeidelMethod,
                                 const vector<double> initial_approx,
-                                const int iterations) {
+                                const int iterations,
+                                const int dp) {
   if (!isAugmented) {
     throw std::invalid_argument("Matrix must augmented.");
   }
-  if (!is_diagonally_dominant()) {
-    throw std::invalid_argument("Matrix must be diagonally dominant");
-  }
+
   if (iterations < 1) {
     throw std::invalid_argument(
         "Number of iterations must be a positive value");
+  }
+
+  if (dp < 1) {
+    throw std::invalid_argument(
+        "Number of decimal places must be a positive value");
   }
 
   const int vars = myMatrix.size();
@@ -107,10 +111,6 @@ void SquareMatrix::solve_approx(const bool useSeidelMethod,
     throw std::invalid_argument(
         "Size of approximation array must be equal to number of variables");
   }
-  // ! CHECK if solutions exist
-
-  // Leading diagonal must be non-zero
-  // !TODO : allow variable dp
 
   // calculate approximations
   vector<vector<double>> table(iterations + 1, initial_approx);
@@ -129,10 +129,14 @@ void SquareMatrix::solve_approx(const bool useSeidelMethod,
               myMatrix[col][i] * (i < col ? table[row][i] : table[row - 1][i]);
 
         } else {
-          // for jacobi method, use values from previous iterations to
+          // for jacobi method, use values from previous iteration to
           // calculate new value
           table[row][col] -= myMatrix[col][i] * table[row - 1][i];
         }
+      }
+      if (myMatrix[col][col] == 0) {
+        throw std::invalid_argument(
+            "Leading diagonal elements of matrix must be non-zero.");
       }
       table[row][col] /= myMatrix[col][col];
     }
@@ -157,8 +161,14 @@ void SquareMatrix::solve_approx(const bool useSeidelMethod,
     cout << std::left << std::setw(nameWidth) << std::setfill(separator) << row;
     for (int col = 0; col < vars; col++) {
       cout << std::left << std::setw(nameWidth) << std::setfill(separator)
-           << std::fixed << std::setprecision(3) << table[row][col];
+           << std::fixed << std::setprecision(dp) << table[row][col];
     }
     cout << endl;
+  }
+
+  if (!is_diagonally_dominant()) {
+    cout << ("Convergence is not guaranteed as matrix is NOT diagonally "
+             "dominant.")
+         << endl;
   }
 }
