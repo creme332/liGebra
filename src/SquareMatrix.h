@@ -49,7 +49,7 @@ class SquareMatrix {
 
   // Outputs approximations of a system of equations using either Gauss-Jacobi
   // or Gauss-Seidel method
-  void solve_approx(const bool useSeidelMethod,
+  vector<vector<double>> solve_approx(const bool useSeidelMethod,
       vector<double> initial_approx,
                     int iterations = 5,
                     int dp = 4);

@@ -87,10 +87,11 @@ bool SquareMatrix::is_diagonally_dominant() {
   return 1;
 }
 
-void SquareMatrix::solve_approx(const bool useSeidelMethod,
-                                const vector<double> initial_approx,
-                                const int iterations,
-                                const int dp) {
+vector<vector<double>> SquareMatrix::solve_approx(
+    const bool useSeidelMethod,
+    const vector<double> initial_approx,
+    const int iterations,
+    const int dp) {
   if (!isAugmented) {
     throw std::invalid_argument("Matrix must augmented.");
   }
@@ -143,6 +144,13 @@ void SquareMatrix::solve_approx(const bool useSeidelMethod,
   }
 
   // output table
+  cout << (useSeidelMethod ? "Gauss-seidel method" : "Gauss-jacobi method")
+       << endl;
+  if (!is_diagonally_dominant()) {
+    cout << ("Solutions may not converge as matrix is NOT diagonally "
+             "dominant.")
+         << endl;
+  }
   const char separator = ' ';
   const int nameWidth = 15;
   const int numWidth = 10;
@@ -166,9 +174,5 @@ void SquareMatrix::solve_approx(const bool useSeidelMethod,
     cout << endl;
   }
 
-  if (!is_diagonally_dominant()) {
-    cout << ("Convergence is not guaranteed as matrix is NOT diagonally "
-             "dominant.")
-         << endl;
-  }
+  return table;
 }
