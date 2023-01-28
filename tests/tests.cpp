@@ -1,6 +1,19 @@
 #include "../src//SquareMatrix.h"
 #include "doctest.h"
 
+// Checks if two vectors have the same size and same elements
+void compare_vectors(vector<vector<double>> a,
+                     vector<vector<double>> b,
+                     const double tolerance = 0.001) {
+  // allow for a 0.1% error
+  for (int i = 0; i < a.size(); i++) {
+    CHECK_EQ(a[i].size(), b[i].size());
+    for (int j = 0; j < a[i].size(); j++) {
+      REQUIRE(a[i][j] - b[i][j] == doctest::Approx(0).epsilon(tolerance));
+    }
+  }
+}
+
 TEST_CASE("Test constructor") {
   SUBCASE("2D matrix as parameter") {
     CHECK_THROWS_AS(SquareMatrix A({{1, 1}}), std::exception);
@@ -95,11 +108,25 @@ TEST_CASE("Test Gauss-Jacobi and Gauss-Seidel") {
     }
   }
 
-  SUBCASE("Test values obtained") {
-    SquareMatrix A({{6, -1, -5, -19}, {-1, -7, -1, -22}, {-2, 3, 8, 27}}, true);
-    A.solve_approx(1, {1, 100, 50}, 100);
+  SUBCASE("Test values calculated") {
+    SUBCASE("3x3 using Seidel") {
+      SquareMatrix A({{6, -1, -5, -19}, {-1, -7, -1, -22}, {-2, 3, 8, 27}},
+                     true);
+      vector<vector<double>> table = A.solve_approx(1, {0, 0, 0}, 3);
+      const vector<vector<double>> expectedAnswer = {{0, 0, 0},
+                                                     {-3.1667, 3.5952, 1.2351},
+                                                     {-1.5382, 3.1862, 1.7956},
+                                                     {-1.1393, 3.0491, 1.9468}};
+      compare_vectors(table, expectedAnswer);
+    }
+    SUBCASE("3x3 using jacobi") {
+      SquareMatrix A({{4, -1, -1, 3}, {-2, 6, 1, 9}, {-1, 1, 7, -6}}, true);
+      vector<vector<double>> table = A.solve_approx(0, {0, 0, 0}, 3);
+      const vector<vector<double>> expectedAnswer = {{0, 0, 0},
+                                                     {0.75, 1.5, -0.857},
+                                                     {0.911, 1.893, -0.964},
+                                                     {0.982, 1.964, -0.997}};
+      compare_vectors(table, expectedAnswer);
+    }
   }
-
-  // SquareMatrix A({{-7, -1, 2, 3}, {1, 9, -3, 2}, {3, -2, 5, -1}}, true);
-  //  SquareMatrix A({{5, 2, 21}, {1, 2, 8}}, true);
 }
