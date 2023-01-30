@@ -176,3 +176,25 @@ vector<vector<double>> SquareMatrix::solve_approx(
 
   return table;
 }
+
+string SquareMatrix::stringify(int dp) {
+  std::stringstream stringRep;
+  const char separator = '|';
+  const char spaceChar = ' ';
+  const int nameWidth = 10;
+  const int numWidth = 6;
+  const int rowCount = myMatrix.size();
+
+  for (int row = 0; row < rowCount; row++) {
+    for (int col = 0; col < myMatrix[row].size(); col++) {
+      stringRep << std::left << std::setw(nameWidth) << std::setfill(spaceChar)
+                << std::fixed << std::setprecision(dp) << myMatrix[row][col];
+      if (col == rowCount - 1) {
+        stringRep << std::left << std::setw(5) << std::setfill(spaceChar)
+                  << separator;
+      }
+    }
+    stringRep << endl;
+  }
+  return stringRep.str();
+}
