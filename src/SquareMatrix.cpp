@@ -67,6 +67,12 @@ double SquareMatrix::getDeterminant(vector<vector<double>> A) {
   return determinant;
 }
 
+double SquareMatrix::at(int row, int col) {
+  if (row < 0 || col < 0 || row >= myMatrix.size() || col >= myMatrix[0].size())
+    throw std::invalid_argument("Matrix must augmented.");
+
+  return myMatrix[row][col];
+}
 double SquareMatrix::det() {
   return getDeterminant(myMatrix);
 }
@@ -197,4 +203,176 @@ string SquareMatrix::stringify(int dp) {
     stringRep << endl;
   }
   return stringRep.str();
+}
+
+void SquareMatrix::add_rows(int row1, int row2, double k) {
+  const int dimension = myMatrix[myMatrix.size() - 1].size();
+
+  for (int col = 0; col < dimension; col++) {
+    myMatrix[row1][col] += myMatrix[row2][col] * k;
+  }
+}
+
+void SquareMatrix::scale_row(int row, double k) {
+  for (int i = 0; i < myMatrix[row].size(); i++) {
+    if (!approxEqual(myMatrix[row][i], 0))
+      myMatrix[row][i] /= k;
+  }
+}
+
+bool SquareMatrix::approxEqual(double a, double b) {
+  return abs(a - b) < 1e-9;
+}
+
+void SquareMatrix::swap_row(int row1, int row2) {
+  if (row1 < 0 || row2 < 0 || row1 >= myMatrix.size() ||
+      row2 >= myMatrix.size()) {
+    throw std::invalid_argument("Invalid row indices");
+  }
+  std::swap(myMatrix[row1], myMatrix[row2]);
+}
+
+void SquareMatrix::gauss_inv() {
+  const int rowCount = myMatrix.size();
+
+  // string containing all the steps to be printed.
+  std::stringstream stringRep;
+
+  // create an augmented matrix = [A | I]
+  SquareMatrix AugmentedMatrix(
+      merge_matrices(myMatrix, get_identity(myMatrix.size())), true);
+  stringRep << AugmentedMatrix.stringify();
+
+  // Convert left matrix of augmented matrix to an upper triangular matrix where
+  // each leading diagonal element is 0 or 1.
+  stringRep << "Create an upper triangular matrix in LHS" << endl;
+  for (int i = 0; i < rowCount; i++) {
+    // Make AugmentedMatrix[i][i] a pivot if possible
+
+    // perform row swapping if required
+    if (approxEqual(AugmentedMatrix.at(i, i), 0) && i != rowCount - 1) {
+      // get row index of row where i-th element is not a 0
+      int newPivotRow = AugmentedMatrix.getNextPivotRow(i + 1, i);
+      if (newPivotRow != i) {
+        // swap rows
+        AugmentedMatrix.swap_row(i, newPivotRow);
+        stringRep << "Swap rows " << newPivotRow << " and " << i << endl;
+        stringRep << AugmentedMatrix.stringify();
+      }
+    }
+
+    // Scale current row to make pivot a 1
+    if (!approxEqual(AugmentedMatrix.at(i, i), 1) &&
+        !approxEqual(AugmentedMatrix.at(i, i), 0)) {
+      stringRep << "Divide R" << i << " by " << AugmentedMatrix.at(i, i)
+                << endl;
+      AugmentedMatrix.scale_row(i, AugmentedMatrix.at(i, i));
+      stringRep << AugmentedMatrix.stringify();
+    }
+
+    // make current column a pivot column
+    for (int j = i + 1; j < rowCount; j++) {
+      // output step
+      if (approxEqual(AugmentedMatrix.at(j, i), 1)) {
+        stringRep << "R" << j << "  - R" << i << endl;
+      } else {
+        stringRep << "R" << j << "  - R" << i << " * "
+                  << AugmentedMatrix.at(j, i) << endl;
+      }
+      AugmentedMatrix.add_rows(j, i, -AugmentedMatrix.at(j, i));
+
+      stringRep << AugmentedMatrix.stringify();
+    }
+  }
+
+  // check if inverse matrix exists. For inverse matrix to exist, product of
+  // leading diagonal must be 1.
+  bool isInvertible = 1;
+  for (int i = 0; i < rowCount; i++) {
+    if (approxEqual(AugmentedMatrix.at(i, i), 0)) {
+      isInvertible = 0;
+      break;
+    }
+  }
+
+  if (!isInvertible) {
+    stringRep << "\nNo Inverse \n";
+    cout << stringRep.str();
+    return;
+  }
+
+  // convert upper triangular matrix in LHS to an identity matrix
+  stringRep << "Convert upper triangular matrix in LHS to an identity matrix"
+            << endl;
+  for (int i = rowCount - 2; i >= 0; i--) {
+    for (int j = i; j >= 0; j--) {
+      if (approxEqual(AugmentedMatrix.at(j, i + 1), 0)) {
+        // this IF statement is for optimisation only and is optional
+        continue;
+      }
+
+      // output step
+      if (approxEqual(AugmentedMatrix.at(j, i + 1), 1)) {
+        stringRep << "R" << j << "  - R" << i + 1 << endl;
+      } else {
+        stringRep << "R" << j << "  - R" << i + 1 << " * "
+                  << AugmentedMatrix.at(j, i + 1) << endl;
+      }
+      AugmentedMatrix.add_rows(j, i + 1, -AugmentedMatrix.at(j, i + 1));
+      stringRep << AugmentedMatrix.stringify();
+    }
+  }
+
+  // extract inverse matrix from augmented matrix
+  vector<vector<double>> inverseMatrix(rowCount, vector<double>(rowCount, 0));
+  for (int row = 0; row < rowCount; row++) {
+    for (int col = rowCount; col < 2 * rowCount; col++) {
+      inverseMatrix[row][col - rowCount] = AugmentedMatrix.at(row, col);
+    }
+  }
+  cout << stringRep.str();
+}
+
+// Merges two N x N square matrices and returns an augmented matrix [A | B]
+vector<vector<double>> SquareMatrix::merge_matrices(vector<vector<double>> A,
+                                                    vector<vector<double>> B) {
+  if (A.size() != B.size()) {
+    throw std::invalid_argument(
+        "Cannot merge matrices having different number of rows");
+  }
+  if (A.size() == 0 || B.size() == 0) {
+    throw std::invalid_argument("Cannot merge empty matrices");
+  }
+  const int N = A.size();
+  vector<vector<double>> augmentedMatrix(N, vector<double>(N * 2, 0));
+
+  // Merge matrices
+  for (int row = 0; row < N; row++) {
+    for (int col = 0; col < 2 * N; col++) {
+      augmentedMatrix[row][col] = col < N ? A[row][col] : B[row][col - N];
+    }
+  }
+  return augmentedMatrix;
+}
+
+vector<vector<double>> SquareMatrix::get_identity(int n) {
+  if (n <= 0) {
+    throw std::invalid_argument("Received an invalid matrix size");
+    return {{}};
+  }
+  vector<vector<double>> identity(n, vector<double>(n, 0));
+  for (int i = 0; i < n; i++) {
+    identity[i][i] = 1;
+  }
+  return identity;
+}
+
+// Returns the row index of a row > startRow having a non-zero entry in a
+// specified column. If no such row found, return startRow.
+int SquareMatrix::getNextPivotRow(int startRow, int col) {
+  for (int i = startRow; i < myMatrix.size(); i++) {
+    if (!approxEqual(myMatrix[i][col], 0))
+      return i;
+  }
+  return startRow;
 }
