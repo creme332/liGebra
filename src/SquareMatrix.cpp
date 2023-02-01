@@ -98,6 +98,8 @@ vector<vector<double>> SquareMatrix::solve_approx(
     const vector<double> initial_approx,
     const int iterations,
     const int dp) {
+  std::stringstream stringRep;
+
   if (!isAugmented) {
     throw std::invalid_argument("Matrix must augmented.");
   }
@@ -150,36 +152,39 @@ vector<vector<double>> SquareMatrix::solve_approx(
   }
 
   // output table
-  cout << (useSeidelMethod ? "Gauss-seidel method" : "Gauss-jacobi method")
-       << endl;
+  stringRep << (useSeidelMethod ? "Gauss-seidel method" : "Gauss-jacobi method")
+            << endl;
   if (!is_diagonally_dominant()) {
-    cout << ("Solutions may not converge as matrix is NOT diagonally "
-             "dominant.")
-         << endl;
+    stringRep << ("Solutions may not converge as matrix is NOT diagonally "
+                  "dominant.")
+              << endl;
   }
   const char separator = ' ';
   const int nameWidth = 15;
   const int numWidth = 10;
 
   // output table header
-  cout << std::left << std::setw(nameWidth) << std::setfill(separator)
-       << "Iteration";
+  stringRep << std::left << std::setw(nameWidth) << std::setfill(separator)
+            << "Iteration";
   for (int col = 0; col < vars; col++) {
     std::string a = "x" + std::to_string(col + 1);
-    cout << std::left << std::setw(nameWidth) << std::setfill(separator) << a;
+    stringRep << std::left << std::setw(nameWidth) << std::setfill(separator)
+              << a;
   }
-  cout << endl;
+  stringRep << endl;
 
   // output table values
   for (int row = 0; row < iterations + 1; row++) {
-    cout << std::left << std::setw(nameWidth) << std::setfill(separator) << row;
+    stringRep << std::left << std::setw(nameWidth) << std::setfill(separator)
+              << row;
     for (int col = 0; col < vars; col++) {
-      cout << std::left << std::setw(nameWidth) << std::setfill(separator)
-           << std::fixed << std::setprecision(dp) << table[row][col];
+      stringRep << std::left << std::setw(nameWidth) << std::setfill(separator)
+                << std::fixed << std::setprecision(dp) << table[row][col];
     }
-    cout << endl;
+    stringRep << endl;
   }
 
+  calculations = stringRep.str();
   return table;
 }
 
@@ -233,6 +238,9 @@ void SquareMatrix::swap_row(int row1, int row2) {
 }
 
 void SquareMatrix::gauss_inv() {
+  if (isAugmented) {
+    throw std::invalid_argument("Cannot inverse an augmented matrix");
+  }
   const int rowCount = myMatrix.size();
 
   // string containing all the steps to be printed.
@@ -242,6 +250,8 @@ void SquareMatrix::gauss_inv() {
   SquareMatrix AugmentedMatrix(
       merge_matrices(myMatrix, get_identity(myMatrix.size())), true);
   stringRep << AugmentedMatrix.stringify();
+
+  stringRep << endl;
 
   // Convert left matrix of augmented matrix to an upper triangular matrix where
   // each leading diagonal element is 0 or 1.
@@ -256,32 +266,33 @@ void SquareMatrix::gauss_inv() {
       if (newPivotRow != i) {
         // swap rows
         AugmentedMatrix.swap_row(i, newPivotRow);
-        stringRep << "Swap rows " << newPivotRow << " and " << i << endl;
-        stringRep << AugmentedMatrix.stringify();
+        stringRep << "Swap rows " << newPivotRow + 1 << " and " << i + 1
+                  << endl;
+        stringRep << AugmentedMatrix.stringify() << endl;
       }
     }
 
     // Scale current row to make pivot a 1
     if (!approxEqual(AugmentedMatrix.at(i, i), 1) &&
         !approxEqual(AugmentedMatrix.at(i, i), 0)) {
-      stringRep << "Divide R" << i << " by " << AugmentedMatrix.at(i, i)
+      stringRep << "Divide R" << i + 1 << " by " << AugmentedMatrix.at(i, i)
                 << endl;
       AugmentedMatrix.scale_row(i, AugmentedMatrix.at(i, i));
-      stringRep << AugmentedMatrix.stringify();
+      stringRep << AugmentedMatrix.stringify() << endl;
     }
 
     // make current column a pivot column
     for (int j = i + 1; j < rowCount; j++) {
       // output step
       if (approxEqual(AugmentedMatrix.at(j, i), 1)) {
-        stringRep << "R" << j << "  - R" << i << endl;
+        stringRep << "R" << j + 1 << "  - R" << i + 1 << endl;
       } else {
-        stringRep << "R" << j << "  - R" << i << " * "
+        stringRep << "R" << j + 1 << "  - R" << i + 1 << " * "
                   << AugmentedMatrix.at(j, i) << endl;
       }
       AugmentedMatrix.add_rows(j, i, -AugmentedMatrix.at(j, i));
 
-      stringRep << AugmentedMatrix.stringify();
+      stringRep << AugmentedMatrix.stringify() << endl;
     }
   }
 
@@ -297,7 +308,7 @@ void SquareMatrix::gauss_inv() {
 
   if (!isInvertible) {
     stringRep << "\nNo Inverse \n";
-    cout << stringRep.str();
+    stringRep << stringRep.str();
     return;
   }
 
@@ -313,13 +324,13 @@ void SquareMatrix::gauss_inv() {
 
       // output step
       if (approxEqual(AugmentedMatrix.at(j, i + 1), 1)) {
-        stringRep << "R" << j << "  - R" << i + 1 << endl;
+        stringRep << "R" << j + 1 << "  - R" << (i + 1) + 1 << endl;
       } else {
-        stringRep << "R" << j << "  - R" << i + 1 << " * "
+        stringRep << "R" << j + 1 << "  - R" << (i + 1) + 1 << " * "
                   << AugmentedMatrix.at(j, i + 1) << endl;
       }
       AugmentedMatrix.add_rows(j, i + 1, -AugmentedMatrix.at(j, i + 1));
-      stringRep << AugmentedMatrix.stringify();
+      stringRep << AugmentedMatrix.stringify() << endl;
     }
   }
 
@@ -330,7 +341,7 @@ void SquareMatrix::gauss_inv() {
       inverseMatrix[row][col - rowCount] = AugmentedMatrix.at(row, col);
     }
   }
-  cout << stringRep.str();
+  calculations = stringRep.str();
 }
 
 // Merges two N x N square matrices and returns an augmented matrix [A | B]
@@ -375,4 +386,8 @@ int SquareMatrix::getNextPivotRow(int startRow, int col) {
       return i;
   }
   return startRow;
+}
+
+void SquareMatrix::calc_cout() {
+  std::cout << calculations;
 }

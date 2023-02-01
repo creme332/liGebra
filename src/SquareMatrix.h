@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
-using std::cout, std::cin, std::endl, std::vector, std::string;
+using std::endl, std::vector, std::string;
 
 // A class for 2D square matrix.
 class SquareMatrix {
@@ -39,6 +39,9 @@ class SquareMatrix {
 
  public:
   SquareMatrix(vector<vector<double>> initMatrix, bool _isAugmented = 0);
+
+  // Outputs calculations for previous operation to console
+  void calc_cout();
 
   static vector<vector<double>> merge_matrices(vector<vector<double>> A,
                                                vector<vector<double>> B);
