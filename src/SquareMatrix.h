@@ -20,9 +20,6 @@ class SquareMatrix {
   // Checks if matrix is a 2D square matrix or valid augmented matrix.
   bool isValid(vector<vector<double>> initMatrix, bool _isAugmented);
 
-  // Calculates determinant using Laplace expansion.
-  double getDeterminant(vector<vector<double>> A);
-
   // Compares two floating point numbers and returns true if they are
   // approximately equal
   bool approxEqual(double a, double b);
@@ -37,10 +34,13 @@ class SquareMatrix {
   // specified column. If no such row found, return startRow.
   int getNextPivotRow(int startRow, int col);
 
+  // validates a given index. If invalid, output an error message
+  void validate(int i, string msg);
+
  public:
   SquareMatrix(vector<vector<double>> initMatrix, bool _isAugmented = 0);
 
-  // Outputs calculations for previous operation to console
+  // Outputs most recent calculation performed on matrix to  console
   void calc_cout();
 
   static vector<vector<double>> merge_matrices(vector<vector<double>> A,
@@ -76,11 +76,6 @@ class SquareMatrix {
   // method and returns the result.
   void gauss_inv();
 
-  vector<vector<double>> getMinor(vector<vector<double>> A, int row, int col);
-
-  // Returns coefficient matrix from an augmented matrix
-  vector<vector<double>> getCoefficientMatrix(vector<vector<double>> augmented);
-
   bool is_diagonally_dominant();
 
   // Outputs approximations of a system of equations using either Gauss-Jacobi
@@ -90,8 +85,16 @@ class SquareMatrix {
                                       int iterations = 5,
                                       int dp = 4);
 
+  // Returns adjoint matrix
+  vector<vector<double>> get_adjoint();
+
+  // Returns cofactor matrix
+  vector<vector<double>> get_cofactor();
+
+  // Returns minor of matrix
+  double get_minor(int row, int col);
+
   // getLUF();  // get LU factorization double getMinor();
-  // vector<vector<double>> getInverseGauss(bool printSteps);
   // vector<vector<double>> getInverseLeibniz(bool printSteps);  // normal
   // method
 

@@ -32,49 +32,28 @@ bool SquareMatrix::isValid(vector<vector<double>> initMatrix,
   return 1;
 }
 
-vector<vector<double>> SquareMatrix::getMinor(vector<vector<double>> A,
-                                              int row,
-                                              int col) {
-  vector<vector<double>> minor;
-  for (int i = 0; i < A.size(); i++) {
-    vector<double> b;
-    for (int j = 0; j < A.size(); j++) {
-      if (i != row && j != col) {
-        b.push_back(A[i][j]);
-      }
-    }
-    if (b.size() > 0)
-      minor.push_back(b);
-  }
-  return minor;
-}
-
-double SquareMatrix::getDeterminant(vector<vector<double>> A) {
-  if (A.size() == 1) {
-    return A[0][0];
-  }
-
-  int determinant = 0;
-  // loop through each element in row 0
-  for (int i = 0; i < A[0].size(); i++) {
-    // apply cofactor formula
-    double el = i % 2 == 0 ? A[0][i] : -A[0][i];
-
-    // get minor of current element
-    vector<vector<double>> minor = getMinor(A, 0, i);
-    determinant += getDeterminant(minor) * el;
-  }
-  return determinant;
-}
-
 double SquareMatrix::at(int row, int col) {
   if (row < 0 || col < 0 || row >= myMatrix.size() || col >= myMatrix[0].size())
     throw std::invalid_argument("Matrix must augmented.");
 
   return myMatrix[row][col];
 }
+
 double SquareMatrix::det() {
-  return getDeterminant(myMatrix);
+  if (myMatrix.size() == 1) {
+    return myMatrix[0][0];
+  }
+
+  double determinant = 0;
+  // loop through each element in row 0
+  for (int i = 0; i < myMatrix[0].size(); i++) {
+    // apply cofactor formula
+    double el = i % 2 == 0 ? myMatrix[0][i] : -myMatrix[0][i];
+
+    // get minor of current element
+    determinant += SquareMatrix(myMatrix, isAugmented).get_minor(0, i) * el;
+  }
+  return determinant;
 }
 
 bool SquareMatrix::is_diagonally_dominant() {
@@ -390,4 +369,44 @@ int SquareMatrix::getNextPivotRow(int startRow, int col) {
 
 void SquareMatrix::calc_cout() {
   std::cout << calculations;
+}
+
+void SquareMatrix::validate(int i, string msg) {
+  if (i < 0 || i >= myMatrix.size()) {
+    throw std::invalid_argument(msg);
+  }
+}
+
+double SquareMatrix::get_minor(int row, int col) {
+  validate(row, "Cannot calculate minor. Invalid value of row");
+  validate(col, "Cannot calculate minor. Invalid value of col");
+  vector<vector<double>> minor_matrix;
+  for (int i = 0; i < myMatrix.size(); i++) {
+    vector<double> b;
+    for (int j = 0; j < myMatrix.size(); j++) {
+      if (i != row && j != col) {
+        b.push_back(myMatrix[i][j]);
+      }
+    }
+    if (b.size() > 0)
+      minor_matrix.push_back(b);
+  }
+  return SquareMatrix(minor_matrix).det();
+}
+
+vector<vector<double>> SquareMatrix::get_cofactor() {
+  if (isAugmented) {
+    throw std::invalid_argument("Cannot find cofactor of augmented matrix.");
+  }
+  SquareMatrix x(myMatrix, isAugmented);
+  const int row_count = myMatrix.size();
+  vector<vector<double>> minor_matrix(row_count, vector<double>(row_count, 0));
+
+  for (int i = 0; i < row_count; i++) {
+    for (int j = 0; j < row_count; j++) {
+      minor_matrix[i][j] = ((i + j) % 2 ? 1 : -1) + x.get_minor(i, j);
+    }
+  }
+
+  return minor_matrix;
 }
