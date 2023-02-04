@@ -40,12 +40,14 @@ class SquareMatrix {
  public:
   SquareMatrix(vector<vector<double>> initMatrix, bool _isAugmented = 0);
 
+  vector<vector<double>> transpose();
+
   // Outputs most recent calculation performed on matrix to  console
   void calc_cout();
 
   static vector<vector<double>> merge_matrices(vector<vector<double>> A,
                                                vector<vector<double>> B);
-
+  void leb_inv();
   // Returns a stringified version of matrix
   std::string stringify(int dp = 3);
 
@@ -61,8 +63,6 @@ class SquareMatrix {
 
   // Swaps rows of matrix
   void swap_row(int row1, int row2);
-
-  void setMatrix(vector<vector<double>> initMatrix);
 
   // Returns rank of matrix.
   double rank();
@@ -84,9 +84,6 @@ class SquareMatrix {
                                       vector<double> initial_approx,
                                       int iterations = 5,
                                       int dp = 4);
-
-  // Returns adjoint matrix
-  vector<vector<double>> get_adjoint();
 
   // Returns cofactor matrix
   vector<vector<double>> get_cofactor();

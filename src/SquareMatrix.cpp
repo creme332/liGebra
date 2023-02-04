@@ -323,6 +323,22 @@ void SquareMatrix::gauss_inv() {
   calculations = stringRep.str();
 }
 
+void SquareMatrix::leb_inv(){
+  std::stringstream stringRep;
+
+  SquareMatrix cof = SquareMatrix(SquareMatrix(myMatrix, isAugmented).get_cofactor(), false);
+  stringRep << "Cofactor matrix: " << endl;
+  stringRep << cof.stringify();
+  cof.transpose();
+  stringRep << "Adjoint matrix: " << endl;
+  stringRep << cof.stringify();
+  stringRep << "Inverse matrix: " << endl;
+  stringRep << cof.stringify();
+
+
+
+
+}
 // Merges two N x N square matrices and returns an augmented matrix [A | B]
 vector<vector<double>> SquareMatrix::merge_matrices(vector<vector<double>> A,
                                                     vector<vector<double>> B) {
@@ -409,4 +425,13 @@ vector<vector<double>> SquareMatrix::get_cofactor() {
   }
 
   return minor_matrix;
+}
+
+vector<vector<double>> SquareMatrix::transpose() {
+  for (int i = 0; i < myMatrix.size(); i++) {
+    for (int j = 0; j < i; j++) {
+      std::swap(myMatrix[i][j], myMatrix[j][i]);
+    }
+  }
+  return myMatrix;
 }
