@@ -179,7 +179,7 @@ string SquareMatrix::stringify(int dp) {
     for (int col = 0; col < myMatrix[row].size(); col++) {
       stringRep << std::left << std::setw(nameWidth) << std::setfill(spaceChar)
                 << std::fixed << std::setprecision(dp) << myMatrix[row][col];
-      if (col == rowCount - 1) {
+      if (col == rowCount - 1 && isAugmented) {
         stringRep << std::left << std::setw(5) << std::setfill(spaceChar)
                   << separator;
       }
@@ -323,21 +323,26 @@ void SquareMatrix::gauss_inv() {
   calculations = stringRep.str();
 }
 
-void SquareMatrix::leb_inv(){
+void SquareMatrix::leb_inv() {
   std::stringstream stringRep;
-
-  SquareMatrix cof = SquareMatrix(SquareMatrix(myMatrix, isAugmented).get_cofactor(), false);
-  stringRep << "Cofactor matrix: " << endl;
+  SquareMatrix x = SquareMatrix(myMatrix, isAugmented);
+  const double determinant = x.det();
+  SquareMatrix cof = SquareMatrix(x.get_cofactor(), false);
+  stringRep << "Determinant of matrix: \n";
+  stringRep << determinant;
+  stringRep << "\n\n";
+  stringRep << "Cofactor matrix: \n";
   stringRep << cof.stringify();
+  stringRep << "\n";
   cof.transpose();
-  stringRep << "Adjoint matrix: " << endl;
+  stringRep << "Adjoint matrix: \n";
   stringRep << cof.stringify();
-  stringRep << "Inverse matrix: " << endl;
+  stringRep << "\n";
+  stringRep << "Inverse matrix: \n";
+  for (int i = 0; i < myMatrix.size(); i++)
+    cof.scale_row(i, determinant);
   stringRep << cof.stringify();
-
-
-
-
+  calculations = stringRep.str();
 }
 // Merges two N x N square matrices and returns an augmented matrix [A | B]
 vector<vector<double>> SquareMatrix::merge_matrices(vector<vector<double>> A,
@@ -420,7 +425,7 @@ vector<vector<double>> SquareMatrix::get_cofactor() {
 
   for (int i = 0; i < row_count; i++) {
     for (int j = 0; j < row_count; j++) {
-      minor_matrix[i][j] = ((i + j) % 2 ? 1 : -1) + x.get_minor(i, j);
+      minor_matrix[i][j] = ((i + j) & 1 ? -1 : 1) * x.get_minor(i, j);
     }
   }
 
