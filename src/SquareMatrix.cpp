@@ -324,24 +324,37 @@ void SquareMatrix::gauss_inv() {
 }
 
 void SquareMatrix::leb_inv() {
+  if (isAugmented) {
+    throw std::invalid_argument("Cannot inverse an augmented matrix");
+  }
   std::stringstream stringRep;
-  SquareMatrix x = SquareMatrix(myMatrix, isAugmented);
-  const double determinant = x.det();
-  SquareMatrix cof = SquareMatrix(x.get_cofactor(), false);
+  const double determinant = det();
+  SquareMatrix cof = get_cofactor();
+
   stringRep << "Determinant of matrix: \n";
   stringRep << determinant;
   stringRep << "\n\n";
+
   stringRep << "Cofactor matrix: \n";
   stringRep << cof.stringify();
   stringRep << "\n";
+
   cof.transpose();
   stringRep << "Adjoint matrix: \n";
   stringRep << cof.stringify();
   stringRep << "\n";
+
+  if (determinant == 0) {
+    stringRep << "Matrix has no inverse\n";
+    calculations = stringRep.str();
+    return;
+  }
+
   stringRep << "Inverse matrix: \n";
   for (int i = 0; i < myMatrix.size(); i++)
     cof.scale_row(i, determinant);
   stringRep << cof.stringify();
+  myMatrix = cof.get_vec();
   calculations = stringRep.str();
 }
 // Merges two N x N square matrices and returns an augmented matrix [A | B]
@@ -415,28 +428,30 @@ double SquareMatrix::get_minor(int row, int col) {
   return SquareMatrix(minor_matrix).det();
 }
 
-vector<vector<double>> SquareMatrix::get_cofactor() {
+SquareMatrix SquareMatrix::get_cofactor() {
   if (isAugmented) {
     throw std::invalid_argument("Cannot find cofactor of augmented matrix.");
   }
-  SquareMatrix x(myMatrix, isAugmented);
   const int row_count = myMatrix.size();
   vector<vector<double>> minor_matrix(row_count, vector<double>(row_count, 0));
 
   for (int i = 0; i < row_count; i++) {
     for (int j = 0; j < row_count; j++) {
-      minor_matrix[i][j] = ((i + j) & 1 ? -1 : 1) * x.get_minor(i, j);
+      minor_matrix[i][j] = ((i + j) & 1 ? -1 : 1) * get_minor(i, j);
     }
   }
 
-  return minor_matrix;
+  return SquareMatrix(minor_matrix);
 }
 
-vector<vector<double>> SquareMatrix::transpose() {
+void SquareMatrix::transpose() {
   for (int i = 0; i < myMatrix.size(); i++) {
     for (int j = 0; j < i; j++) {
       std::swap(myMatrix[i][j], myMatrix[j][i]);
     }
   }
+}
+
+vector<vector<double>> SquareMatrix::get_vec() {
   return myMatrix;
 }
