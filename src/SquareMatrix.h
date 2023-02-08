@@ -14,7 +14,7 @@ class SquareMatrix {
  private:
   vector<vector<double>> myMatrix;
   bool isAugmented;          // is matrix an augmented matrix
-  std::string calculations;  // stores step-by-step explanations on last
+  std::string calculations;  // stores step-by-step explanations of last
                              // operation performed on matrix
 
   // Checks if matrix is a 2D square matrix or valid augmented matrix.
@@ -27,9 +27,6 @@ class SquareMatrix {
   // Returns an (n x n) identity matrix
   vector<vector<double>> get_identity(int n);
 
-  // Returns the i-th row of matrix
-  vector<double> get_row(int i);
-
   // Returns the row index of a row > startRow having a non-zero entry in a
   // specified column. If no such row found, return startRow.
   int getNextPivotRow(int startRow, int col);
@@ -40,14 +37,21 @@ class SquareMatrix {
  public:
   SquareMatrix(vector<vector<double>> initMatrix, bool _isAugmented = 0);
 
-  vector<vector<double>> transpose();
+  // Rotates matrix 90deg clockwise.
+  void transpose();
+
+  // Returns square matrix as a 2D vector
+  vector<vector<double>> get_vec();
 
   // Outputs most recent calculation performed on matrix to  console
   void calc_cout();
 
   static vector<vector<double>> merge_matrices(vector<vector<double>> A,
                                                vector<vector<double>> B);
+
+  // Inverse matrix using Leibniz method with cofactor formula
   void leb_inv();
+
   // Returns a stringified version of matrix
   std::string stringify(int dp = 3);
 
@@ -70,8 +74,6 @@ class SquareMatrix {
   // Returns determinant of matrix.
   double det();
 
-  double getEigenValues();
-
   // Inverse matrix using Gauss-Jordan Elimination
   // method and returns the result.
   void gauss_inv();
@@ -86,14 +88,20 @@ class SquareMatrix {
                                       int dp = 4);
 
   // Returns cofactor matrix
-  vector<vector<double>> get_cofactor();
+  SquareMatrix get_cofactor();
 
   // Returns minor of matrix
   double get_minor(int row, int col);
 
-  // getLUF();  // get LU factorization double getMinor();
-  // vector<vector<double>> getInverseLeibniz(bool printSteps);  // normal
-  // method
+  // Get LU factorization
+  void get_LUF();
 
-  // vector<vector<double>> getRREF();
+  // Converts matrix to row echelon form using elementary row operations
+  void to_ref();
+
+  // Converts matrix to reduced row echelon form using row operations
+  void to_rref();
+
+  // Returns a vector of eigenvalues of matrix
+  vector<double> eig_val();
 };
