@@ -110,6 +110,7 @@ TEST_CASE("Test Gauss-Jacobi and Gauss-Seidel") {
 
   SUBCASE("Test values calculated") {
     SUBCASE("3x3 using Seidel") {
+      // question 3 notion
       SquareMatrix A({{6, -1, -5, -19}, {-1, -7, -1, -22}, {-2, 3, 8, 27}},
                      true);
       vector<vector<double>> table = A.solve_approx(1, {0, 0, 0}, 3);
@@ -119,14 +120,93 @@ TEST_CASE("Test Gauss-Jacobi and Gauss-Seidel") {
                                                      {-1.1393, 3.0491, 1.9468}};
       compare_vectors(table, expectedAnswer);
     }
-    SUBCASE("3x3 using jacobi") {
+    SUBCASE("3x3 using Jacobi") {
       SquareMatrix A({{4, -1, -1, 3}, {-2, 6, 1, 9}, {-1, 1, 7, -6}}, true);
+
       vector<vector<double>> table = A.solve_approx(0, {0, 0, 0}, 3);
       const vector<vector<double>> expectedAnswer = {{0, 0, 0},
                                                      {0.75, 1.5, -0.857},
                                                      {0.911, 1.893, -0.964},
                                                      {0.982, 1.964, -0.997}};
+      // A.calc_cout();
       compare_vectors(table, expectedAnswer);
     }
+    SUBCASE("4x4 using Seidel") {
+      SquareMatrix A({{10, 1, 2, 3, 30},
+                      {1, 15, 2, -5, 17},
+                      {0, 1, 20, 3, 74},
+                      {3, -10, -1, 25, 80}},
+                     true);
+      vector<vector<double>> table = A.solve_approx(1, {0, 0, 0, 0}, 3);
+      const vector<vector<double>> expectedAnswer = {
+          {0, 0, 0, 0},
+          {3.0000, 0.9333, 3.6533, 3.3595},
+          {1.1682, 1.6882, 3.1117, 3.8596},
+          {1.0510, 1.9349, 3.0243, 3.9688}};
+      // A.calc_cout();
+      compare_vectors(expectedAnswer, table);
+    }
+  }
+}
+
+TEST_CASE("Testing") {
+  SUBCASE("2015-1-sp qu 1b") {
+    SquareMatrix A({{52, 0, 38, 24}, {-1, 19, 0, 58}, {-2, 3, 8, 27}}, true);
+    A.solve_approx(1, {0, 0, 0}, 10, 2);
+    // A.calc_cout();
+  }
+  SUBCASE("2015-1-sp qu 1b") {
+    SquareMatrix A(
+        {
+            {24, 14, 0, 38},
+            {0, -45, -10, -55},
+            {0, -5, -10, -15},
+        },
+        true);
+    A.solve_approx(0, {0, 0, 0}, 10, 4);
+    // A.calc_cout();
+  }
+}
+
+TEST_CASE("Tranpose matrix") {
+  SUBCASE("4x4 matrix") {
+    SquareMatrix A({{5, 6, -1}, {1, 4, 2}, {1, -2, 5}});
+    A.transpose();
+    vector<vector<double>> expected = {{5, 1, 1}, {6, 4, -2}, {-1, 2, 5}};
+    // std::cout << A.stringify();
+    compare_vectors(expected, A.get_vec());
+  }
+}
+
+TEST_CASE("Test matrix inverse using Leibniz") {
+  SUBCASE("3x3 invertible matrix") {
+    SquareMatrix A({{5, 6, -1}, {1, 4, 2}, {1, -2, 5}});
+    A.leb_inv();
+    // A.calc_cout();
+    vector<vector<double>> expected = {
+        {double(24) / 108, double(-28) / 108, double(16) / 108},
+        {double(-3) / 108, double(26) / 108, double(-11) / 108},
+        {double(-6) / 108, double(16) / 108, double(14) / 108}};
+    compare_vectors(expected, A.get_vec());
+  }
+
+  SUBCASE("3x3 non-invertible matrix") {
+    SquareMatrix A({{5, 6, -1}, {5, 6, -1}, {1, -2, 5}});
+    A.leb_inv();
+    A.calc_cout();
+    compare_vectors({{5, 6, -1}, {5, 6, -1}, {1, -2, 5}}, A.get_vec());
+  }
+
+  SUBCASE("4x4 invertible matrix") {
+    SquareMatrix A(
+        {{1, 2, 3, 4}, {1, 4, 2, 0}, {1, -2, 5, -10}, {1, -2, 7, -10}});
+    A.leb_inv();
+    // A.calc_cout();
+    compare_vectors(
+        {{double(10) / 11, double(-3) / 11, double(26) / 11, -2},
+         {double(-5) / 22, double(7) / 22, double(-15) / 44, double(1) / 4},
+         {0, 0, double(-1) / 2, double(1) / 2},
+         {double(3) / 22, double(-1) / 11, double(-1) / 22, 0}},
+        A.get_vec());
   }
 }
