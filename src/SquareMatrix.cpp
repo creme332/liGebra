@@ -241,7 +241,7 @@ void SquareMatrix::gauss_inv() {
     // perform row swapping if required
     if (approxEqual(AugmentedMatrix.at(i, i), 0) && i != rowCount - 1) {
       // get row index of row where i-th element is not a 0
-      int newPivotRow = AugmentedMatrix.getNextPivotRow(i + 1, i);
+      int newPivotRow = AugmentedMatrix.get_next_pivot_row(i);
       if (newPivotRow != i) {
         // swap rows
         AugmentedMatrix.swap_row(i, newPivotRow);
@@ -357,7 +357,7 @@ void SquareMatrix::leb_inv() {
   myMatrix = cof.get_vec();
   calculations = stringRep.str();
 }
-// Merges two N x N square matrices and returns an augmented matrix [A | B]
+
 vector<vector<double>> SquareMatrix::merge_matrices(vector<vector<double>> A,
                                                     vector<vector<double>> B) {
   if (A.size() != B.size()) {
@@ -391,14 +391,12 @@ vector<vector<double>> SquareMatrix::get_identity(int n) {
   return identity;
 }
 
-// Returns the row index of a row > startRow having a non-zero entry in a
-// specified column. If no such row found, return startRow.
-int SquareMatrix::getNextPivotRow(int startRow, int col) {
-  for (int i = startRow; i < myMatrix.size(); i++) {
+int SquareMatrix::get_next_pivot_row(int col) {
+  for (int i = col; i < myMatrix.size(); i++) {
     if (!approxEqual(myMatrix[i][col], 0))
       return i;
   }
-  return startRow;
+  return col;
 }
 
 void SquareMatrix::calc_cout() {
@@ -454,4 +452,106 @@ void SquareMatrix::transpose() {
 
 vector<vector<double>> SquareMatrix::get_vec() {
   return myMatrix;
+}
+
+void SquareMatrix::to_ref() {
+  /*
+    A matrix is in echelon form if:
+    1. Any rows consisting entirely of zeros are grouped at the bottom of the
+    matrix.
+    2. The first nonzero element of each row is 1.
+    3. The leading 1 of each row after the first is positioned to the right of
+    the leading 1 of the previous row.(This implies that all the elements below
+    a leading 1 are zero.)
+  */
+
+  const int rowCount = myMatrix.size();
+
+  // string containing all the steps to be printed.
+  std::stringstream stringRep;
+
+  SquareMatrix A(myMatrix, isAugmented);
+  stringRep << "Converting matrix below to row echelon form" << endl;
+
+  stringRep << A.stringify() << endl;
+  // Convert matrix to an upper triangular matrix where
+  // each leading diagonal element is 0 or 1.
+  stringRep << "Create an upper triangular matrix" << endl;
+
+  for (int i = 0; i < rowCount; i++) {
+    // Make A[i][i] a pivot if possible
+
+    // perform row swapping if required
+    if (approxEqual(A.at(i, i), 0) && i != rowCount - 1) {
+      // get row index of row where i-th element is not a 0
+      int newPivotRow = A.get_next_pivot_row(i);
+      if (newPivotRow != i) {
+        // swap rows
+        A.swap_row(i, newPivotRow);
+        stringRep << "Swap rows " << newPivotRow + 1 << " and " << i + 1
+                  << endl;
+        stringRep << A.stringify() << endl;
+      }
+    }
+
+    // Scale current row to make pivot a 1
+    if (!approxEqual(A.at(i, i), 1) && !approxEqual(A.at(i, i), 0)) {
+      stringRep << "Divide R" << i + 1 << " by " << A.at(i, i) << endl;
+      A.scale_row(i, A.at(i, i));
+      stringRep << A.stringify() << endl;
+    }
+
+    // make current column a pivot column
+    for (int j = i + 1; j < rowCount; j++) {
+      // if element is already 0, move to next element
+      if (approxEqual(A.at(j, i), 0)) {
+        continue;
+      }
+      // output step
+      stringRep << "R" << j + 1 << "  - R" << i + 1;
+      if (!approxEqual(A.at(j, i), 1)) {
+        stringRep << " * " << A.at(j, i);
+      }
+
+      A.add_rows(j, i, -A.at(j, i));
+
+      stringRep << endl << A.stringify() << endl;
+    }
+  }
+  myMatrix = A.get_vec();
+  calculations = stringRep.str();
+}
+
+void SquareMatrix::to_rref() {
+  /*
+  A matrix is said to be in RREF if:
+  1. matrix is in REF.
+  2. The elements above and below a leading 1 are zero.
+  */
+  const int rowCount = myMatrix.size();
+
+  // string containing all the steps to be printed.
+  std::stringstream stringRep;
+
+  // convert matrix to row echelon form
+  to_ref();
+
+  for (int i = rowCount - 2; i >= 0; i--) {
+    for (int j = i; j >= 0; j--) {
+      if (approxEqual(myMatrix[j][i + 1], 0)) {
+        // this IF statement is for optimisation only and is optional
+        continue;
+      }
+
+      // output step
+      stringRep << "R" << j + 1 << "  - R" << (i + 1) + 1;
+      if (!approxEqual(myMatrix[j][i + 1], 1)) {
+        stringRep << " * " << myMatrix[j][i + 1] << endl;
+      }
+      stringRep << endl;
+
+      add_rows(j, i + 1, -myMatrix[j][i + 1]);
+      stringRep << stringify() << endl;
+    }
+  }
 }
