@@ -29,7 +29,7 @@ class SquareMatrix {
 
   // Returns the row index of a row > startRow having a non-zero entry in a
   // specified column. If no such row found, return startRow.
-  int getNextPivotRow(int startRow, int col);
+  int get_next_pivot_row(int col);
 
   // validates a given index. If invalid, output an error message
   void validate(int i, string msg);
@@ -46,6 +46,7 @@ class SquareMatrix {
   // Outputs most recent calculation performed on matrix to  console
   void calc_cout();
 
+  // Merges two N x N square matrices and returns an augmented matrix [A | B]
   static vector<vector<double>> merge_matrices(vector<vector<double>> A,
                                                vector<vector<double>> B);
 
@@ -55,7 +56,7 @@ class SquareMatrix {
   // Returns a stringified version of matrix
   std::string stringify(int dp = 3);
 
-  // Performs row1 + k*row2 and saves result to row1
+  // Performs row1 + k * row2 and saves result to row1
   void add_rows(int row1, int row2, double k);
 
   // Scales a row of matrix by dividing each element by k.
