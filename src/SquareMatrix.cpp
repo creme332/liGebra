@@ -466,60 +466,65 @@ void SquareMatrix::to_ref() {
   */
 
   const int rowCount = myMatrix.size();
+  bool REF = 1;  // is matrix already in REF?
 
   // string containing all the steps to be printed.
   std::stringstream stringRep;
 
-  SquareMatrix A(myMatrix, isAugmented);
   stringRep << "Converting matrix below to row echelon form" << endl;
 
-  stringRep << A.stringify() << endl;
-  // Convert matrix to an upper triangular matrix where
-  // each leading diagonal element is 0 or 1.
-  stringRep << "Create an upper triangular matrix" << endl;
+  stringRep << stringify() << endl;
 
   for (int i = 0; i < rowCount; i++) {
     // Make A[i][i] a pivot if possible
 
     // perform row swapping if required
-    if (approxEqual(A.at(i, i), 0) && i != rowCount - 1) {
+    if (approxEqual(myMatrix[i][i], 0) && i != rowCount - 1) {
       // get row index of row where i-th element is not a 0
-      int newPivotRow = A.get_next_pivot_row(i);
+      int newPivotRow = get_next_pivot_row(i);
       if (newPivotRow != i) {
         // swap rows
-        A.swap_row(i, newPivotRow);
+        swap_row(i, newPivotRow);
         stringRep << "Swap rows " << newPivotRow + 1 << " and " << i + 1
                   << endl;
-        stringRep << A.stringify() << endl;
+        stringRep << stringify() << endl;
+        REF = 0;
       }
     }
 
     // Scale current row to make pivot a 1
-    if (!approxEqual(A.at(i, i), 1) && !approxEqual(A.at(i, i), 0)) {
-      stringRep << "Divide R" << i + 1 << " by " << A.at(i, i) << endl;
-      A.scale_row(i, A.at(i, i));
-      stringRep << A.stringify() << endl;
+    if (!approxEqual(myMatrix[i][i], 1) && !approxEqual(myMatrix[i][i], 0)) {
+      stringRep << "R" << i + 1 << " / " << myMatrix[i][i] << endl;
+      scale_row(i, myMatrix[i][i]);
+      stringRep << stringify() << endl;
+      REF = 0;
     }
 
     // make current column a pivot column
     for (int j = i + 1; j < rowCount; j++) {
       // if element is already 0, move to next element
-      if (approxEqual(A.at(j, i), 0)) {
+      if (approxEqual(myMatrix[j][i], 0)) {
         continue;
       }
       // output step
       stringRep << "R" << j + 1 << "  - R" << i + 1;
-      if (!approxEqual(A.at(j, i), 1)) {
-        stringRep << " * " << A.at(j, i);
+      if (!approxEqual(myMatrix[j][i], 1)) {
+        stringRep << " * " << myMatrix[j][i];
       }
 
-      A.add_rows(j, i, -A.at(j, i));
-
-      stringRep << endl << A.stringify() << endl;
+      add_rows(j, i, -myMatrix[j][i]);
+      REF = 0;
+      stringRep << endl << stringify() << endl;
     }
   }
-  myMatrix = A.get_vec();
-  calculations = stringRep.str();
+  // if matrix was already in REF
+  if (REF) {
+    stringRep.str("");
+    stringRep << "Matrix is already in Row Echelon Form" << endl
+              << stringify() << endl;
+  }
+
+  calculations += stringRep.str();
 }
 
 void SquareMatrix::to_rref() {
@@ -533,13 +538,14 @@ void SquareMatrix::to_rref() {
   // string containing all the steps to be printed.
   std::stringstream stringRep;
 
+  bool RREF = 1;  // is matrix already in RREF?
+
   // convert matrix to row echelon form
   to_ref();
 
   for (int i = rowCount - 2; i >= 0; i--) {
     for (int j = i; j >= 0; j--) {
       if (approxEqual(myMatrix[j][i + 1], 0)) {
-        // this IF statement is for optimisation only and is optional
         continue;
       }
 
@@ -550,8 +556,17 @@ void SquareMatrix::to_rref() {
       }
       stringRep << endl;
 
-      add_rows(j, i + 1, -myMatrix[j][i + 1]);
+      if (!approxEqual(myMatrix[j][i + 1], 0)) {
+        add_rows(j, i + 1, -myMatrix[j][i + 1]);
+        RREF = 0;
+      }
       stringRep << stringify() << endl;
     }
   }
+  // if matrix was already in REF
+  if (RREF) {
+    stringRep.str("");
+    stringRep << "Matrix is already in Reduced Row Echelon Form" << endl;
+  }
+  calculations += stringRep.str();
 }
