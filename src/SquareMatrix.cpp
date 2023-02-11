@@ -534,7 +534,7 @@ void SquareMatrix::to_rref() {
   2. The elements above and below a leading 1 are zero.
   */
   const int rowCount = myMatrix.size();
-
+  // ! TODO : check if already in rref
   // string containing all the steps to be printed.
   std::stringstream stringRep;
 
@@ -544,26 +544,27 @@ void SquareMatrix::to_rref() {
   to_ref();
 
   for (int i = rowCount - 2; i >= 0; i--) {
-    for (int j = i; j >= 0; j--) {
-      if (approxEqual(myMatrix[j][i + 1], 0)) {
+    for (int row = i; row >= 0; row--) {
+      if (approxEqual(myMatrix[row][i + 1], 0) ||
+          approxEqual(myMatrix[i+1][i+1], 0)) {
         continue;
       }
 
       // output step
-      stringRep << "R" << j + 1 << "  - R" << (i + 1) + 1;
-      if (!approxEqual(myMatrix[j][i + 1], 1)) {
-        stringRep << " * " << myMatrix[j][i + 1] << endl;
+      stringRep << "R" << row + 1 << "  - R" << (i + 1) + 1;
+      if (!approxEqual(myMatrix[row][i + 1], 1)) {
+        stringRep << " * " << myMatrix[row][i + 1] << endl;
       }
       stringRep << endl;
 
-      if (!approxEqual(myMatrix[j][i + 1], 0)) {
-        add_rows(j, i + 1, -myMatrix[j][i + 1]);
+      if (!approxEqual(myMatrix[row][i + 1], 0)) {
+        add_rows(row, i + 1, -myMatrix[row][i + 1]);
         RREF = 0;
       }
       stringRep << stringify() << endl;
     }
   }
-  // if matrix was already in REF
+  // if matrix was already in RREF
   if (RREF) {
     stringRep.str("");
     stringRep << "Matrix is already in Reduced Row Echelon Form" << endl;
