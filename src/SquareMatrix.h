@@ -79,8 +79,6 @@ class SquareMatrix {
   // method and returns the result.
   void gauss_inv();
 
-  bool is_diagonally_dominant();
-
   // Outputs approximations of a system of equations using either Gauss-Jacobi
   // or Gauss-Seidel method
   vector<vector<double>> solve_approx(const bool useSeidelMethod,
@@ -103,6 +101,15 @@ class SquareMatrix {
   // Converts matrix to reduced row echelon form using row operations
   void to_rref();
 
+  // Solves a system of equation using cramers rule.
+  void solve_cramer();
+
   // Returns a vector of eigenvalues of matrix
   vector<double> eig_val();
+
+  // Returns true if matrix is strictly diagonally dominant.
+  bool is_diag_dominant();
+
+  // Makes matrix diagonally dominant
+  void to_diag();
 };

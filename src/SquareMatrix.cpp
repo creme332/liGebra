@@ -534,7 +534,7 @@ void SquareMatrix::to_rref() {
   2. The elements above and below a leading 1 are zero.
   */
   const int rowCount = myMatrix.size();
-  // ! TODO : check if already in rref
+
   // string containing all the steps to be printed.
   std::stringstream stringRep;
 
@@ -546,7 +546,7 @@ void SquareMatrix::to_rref() {
   for (int i = rowCount - 2; i >= 0; i--) {
     for (int row = i; row >= 0; row--) {
       if (approxEqual(myMatrix[row][i + 1], 0) ||
-          approxEqual(myMatrix[i+1][i+1], 0)) {
+          approxEqual(myMatrix[i + 1][i + 1], 0)) {
         continue;
       }
 
@@ -570,4 +570,29 @@ void SquareMatrix::to_rref() {
     stringRep << "Matrix is already in Reduced Row Echelon Form" << endl;
   }
   calculations += stringRep.str();
+}
+
+void SquareMatrix::solve_cramer() {}
+
+bool SquareMatrix::is_diag_dominant() {
+  // Strict row diagonal dominance means that for each row, the absolute value
+  // of the diagonal term is greater than the sum of absolute values of other
+  // terms
+  const int row_count = myMatrix.size();
+  // if matrix is augmented, ignore columns after row_count.
+  for (int i = 0; i < row_count; i++) {
+    double row_sum = 0;
+    for (int j = 0; j < row_count; j++) {
+      row_sum += abs(myMatrix[i][j]);
+    }
+    if (abs(myMatrix[i][i]) <= row_sum - abs(myMatrix[i][i]))
+      return 0;
+  }
+  return 1;
+}
+
+void SquareMatrix::to_diag() {
+  if (is_diag_dominant())
+    return;
+
 }
