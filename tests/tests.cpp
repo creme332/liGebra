@@ -59,20 +59,25 @@ TEST_CASE("Test determinant") {
   }
 }
 
-TEST_CASE("Check for diagonal dominance") {
+TEST_CASE("Check for strict diagonal dominance") {
   SUBCASE("3x4 DD augmented matrix") {
-    SquareMatrix A({{-22, 3, 8, 27}, {3, -5, 2, -14}, {3, 3, 21, 48}}, true);
-    CHECK_EQ(A.is_diagonally_dominant(), true);
+    SquareMatrix A({{-22, 3, 8, 27}, {3, -6, 2, -14}, {3, 3, 21, 48}}, true);
+    CHECK_EQ(A.is_diag_dominant(), true);
   }
 
   SUBCASE("3x4 non-DD augmented matrix") {
     SquareMatrix A({{-2, 3, 8, 27}, {3, -5, 2, -14}, {3, 3, 21, 48}}, true);
-    CHECK_EQ(A.is_diagonally_dominant(), 0);
+    CHECK_EQ(A.is_diag_dominant(), 0);
   }
 
   SUBCASE("3x3 non-DD matrix") {
+    SquareMatrix A({{-22, 3, 8}, {3, -10, 2}, {3, 3, 21}}, true);
+    CHECK_EQ(A.is_diag_dominant(), true);
+  }
+
+  SUBCASE("3x3 non-strict DD matrix") {
     SquareMatrix A({{-22, 3, 8}, {3, -5, 2}, {3, 3, 21}}, true);
-    CHECK_EQ(A.is_diagonally_dominant(), true);
+    CHECK_EQ(A.is_diag_dominant(), false);
   }
 }
 
@@ -193,7 +198,7 @@ TEST_CASE("Test matrix inverse using Leibniz") {
   SUBCASE("3x3 non-invertible matrix") {
     SquareMatrix A({{5, 6, -1}, {5, 6, -1}, {1, -2, 5}});
     A.leb_inv();
-    A.calc_cout();
+    // A.calc_cout();
     compare_vectors({{5, 6, -1}, {5, 6, -1}, {1, -2, 5}}, A.get_vec());
   }
 
@@ -208,5 +213,76 @@ TEST_CASE("Test matrix inverse using Leibniz") {
          {0, 0, double(-1) / 2, double(1) / 2},
          {double(3) / 22, double(-1) / 11, double(-1) / 22, 0}},
         A.get_vec());
+  }
+}
+
+TEST_CASE("Test row echelon form") {
+  SUBCASE("3x3 matrix") {
+    SquareMatrix A({{5, 6, -1}, {1, 4, 2}, {1, -2, 5}});
+    A.to_ref();
+    // A.calc_cout();
+    vector<vector<double>> expected = {
+        {1, 1.2, -0.2}, {0, 1, 0.786}, {0, 0, 1}};
+    compare_vectors(expected, A.get_vec());
+  }
+
+  SUBCASE("3x3 matrix in REF with a zero row") {
+    SquareMatrix A({{1, 5, 0}, {0, 0, 1}, {0, 0, 0}});
+    A.to_ref();
+    // A.calc_cout();
+    compare_vectors({{1, 5, 0}, {0, 0, 1}, {0, 0, 0}}, A.get_vec());
+  }
+
+  SUBCASE("3x3 matrix already in REF") {
+    SquareMatrix A({{1, 5, 0}, {0, 0, 1}, {0, 0, 0}});
+    A.to_ref();
+    // A.calc_cout();
+  }
+}
+
+TEST_CASE("Test reduced row echelon form") {
+  SUBCASE("3x3 matrix") {
+    SquareMatrix A({{5, 6, -1}, {1, 4, 2}, {1, -2, 5}});
+    A.to_rref();
+    // A.calc_cout();
+    vector<vector<double>> expected = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+    compare_vectors(expected, A.get_vec());
+  }
+
+  SUBCASE("3x3 matrix in REF with a zero row") {
+    SquareMatrix A({{1, 5, 0}, {0, 0, 1}, {0, 0, 0}});
+    A.to_rref();
+    // A.calc_cout();
+    compare_vectors({{1, 5, 0}, {0, 0, 1}, {0, 0, 0}}, A.get_vec());
+  }
+
+  SUBCASE("4x4 system of equations with unique solution") {
+    SquareMatrix A({{10, 1, 2, 3, 30},
+                    {1, 15, 2, -5, 17},
+                    {0, 1, 20, 3, 74},
+                    {3, -10, -1, 25, 80}},
+                   true);
+
+    A.to_rref();
+    // A.calc_cout();
+    compare_vectors(
+        {{1, 0, 0, 0, 1}, {0, 1, 0, 0, 2}, {0, 0, 1, 0, 3}, {0, 0, 0, 1, 4}},
+        A.get_vec());
+  }
+
+  SUBCASE("4x4 system of equations with infinite solutions") {
+    SquareMatrix A({{10, 1, 2, 3, 30},
+                    {10, 1, 2, 3, 30},
+                    {10, 1, 2, 3, 30},
+                    {10, 1, 2, 3, 30}},
+                   true);
+
+    A.to_rref();
+    A.calc_cout();
+    compare_vectors({{1, 0.1, 0.2, 0.3, 3},
+                     {0, 0, 0, 0, 0},
+                     {0, 0, 0, 0, 0},
+                     {0, 0, 0, 0, 0}},
+                    A.get_vec());
   }
 }
