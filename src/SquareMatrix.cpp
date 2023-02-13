@@ -56,22 +56,6 @@ double SquareMatrix::det() {
   return determinant;
 }
 
-bool SquareMatrix::is_diagonally_dominant() {
-  const int lastCol = isAugmented ? myMatrix[0].size() - 1 : myMatrix[0].size();
-  for (int row = 0; row < myMatrix.size(); row++) {
-    // get absolute sum of all elements on current row except diagonal element
-    double sum = 0;
-    for (int col = 0; col < lastCol; col++) {
-      if (row != col) {
-        sum += abs(myMatrix[row][col]);
-      }
-    }
-    if (abs(myMatrix[row][row]) < sum)
-      return 0;
-  }
-  return 1;
-}
-
 vector<vector<double>> SquareMatrix::solve_approx(
     const bool useSeidelMethod,
     const vector<double> initial_approx,
@@ -133,7 +117,7 @@ vector<vector<double>> SquareMatrix::solve_approx(
   // output table
   stringRep << (useSeidelMethod ? "Gauss-seidel method" : "Gauss-jacobi method")
             << endl;
-  if (!is_diagonally_dominant()) {
+  if (!is_diag_dominant()) {
     stringRep << ("Solutions may not converge as matrix is NOT diagonally "
                   "dominant.")
               << endl;
@@ -591,8 +575,89 @@ bool SquareMatrix::is_diag_dominant() {
   return 1;
 }
 
+int SquareMatrix::get_dom_index(int row, int row_count) {
+  // get row sum
+  double row_sum = 0;
+  for (int j = 0; j < row_count; j++) {
+    row_sum += abs(myMatrix[row][j]);
+  }
+
+  // get column index of strictly dominant element in current row
+  for (int col = 0; col < row_count; col++) {
+    if (abs(myMatrix[row][col]) > row_sum - abs(myMatrix[row][col])) {
+      return col;
+    }
+  }
+  return -1;
+}
+
 void SquareMatrix::to_diag() {
   if (is_diag_dominant())
     return;
+  std::stringstream stringRep;
+  stringRep << "Converting to matrix to strict diagonally dominant form: "
+            << endl;
+  stringRep << stringify() << endl;
+  const int row_count = myMatrix.size();
 
+  vector<int> dom(row_count, -1);
+  // dom[i] = j means that myMatrix[i][j] is the dominant element in row i.
+  //  j = -1 means that row i has no dominant element.
+
+  // initialise dom
+  for (int row = 0; row < row_count; row++) {
+    dom[row] = get_dom_index(row, row_count);
+  }
+
+  // get rid of -1 in dom
+  bool normal = true;
+  while (normal) {
+    normal = false;
+    for (int i = 0; i < row_count; i++) {
+      if (dom[i] == -1) {
+        normal = true;
+        stringRep << "R" << i + 1 << " + "
+                  << "R" << (i + 1) % row_count + 1 << endl;
+        add_rows(i, (i + 1) % row_count, 1);
+        stringRep << stringify() << endl;
+
+        // update dom
+        dom[i] = get_dom_index(i, row_count);
+      }
+    }
+  }
+
+  // std::cout << stringRep.str() << endl;
+  //;
+
+  bool changed = true;
+
+  // identify and remove duplicates in array
+  while (changed) {
+    changed = false;
+    for (int i = 0; i < row_count; i++) {
+      for (int j = i + 1; j < row_count; j++) {
+        if (dom[i] == dom[j]) {
+          const int col = dom[j];
+          const double scale_factor = myMatrix[i][col];
+          stringRep << myMatrix[j][col] << " * R" << i + 1 << " - "
+                    << myMatrix[i][col] << " * R" << j + 1 << endl;
+          scale_row(i, double(1 / myMatrix[j][col]));
+          // stringRep << stringify() << endl;
+
+          add_rows(i, j, -scale_factor);
+          // stringRep << stringify() << endl;
+
+          dom[i] = get_dom_index(i, row_count);
+          changed = true;
+          stringRep << stringify() << endl;
+          // std::cout << stringRep.str();
+          break;
+        }
+      }
+      if (changed)
+        break;
+    }
+  }
+  calculations += stringRep.str();
 }
