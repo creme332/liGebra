@@ -609,24 +609,49 @@ void SquareMatrix::to_diag() {
     dom[row] = get_dom_index(row, row_count);
   }
 
-  // get rid of -1 in dom
-  bool normal = true;
-  while (normal) {
-    normal = false;
-    for (int i = 0; i < row_count; i++) {
-      if (dom[i] == -1) {
-        normal = true;
-        stringRep << "R" << i + 1 << " + "
-                  << "R" << (i + 1) % row_count + 1 << endl;
-        add_rows(i, (i + 1) % row_count, 1);
-        stringRep << stringify() << endl;
+  // get rid of -1 elements in dom
+  for (int i = 0; i < row_count; i++) {
+    if (dom[i] == -1) {
+      // row i is has no dominant element
 
-        // update dom
-        dom[i] = get_dom_index(i, row_count);
+      // convert a non-zero element in row i to zero.
+
+      int colX = -1;  // column index of a non-zero element in row i
+      int rowX = -1;  // row index of a non-zero element in colX
+      for (int col = 0; col < row_count; col++) {
+        bool found = false;
+        if (!approxEqual(myMatrix[i][col], 0)) {
+          colX = col;
+          // get row index of any non-zero element in colX
+          for (int row = 0; row < row_count; row++) {
+            if (row != i && !approxEqual(myMatrix[row][colX], 0)) {
+              rowX = row;
+              found = true;
+              break;
+            }
+          }
+          if (found)
+            break;
+        }
       }
+      assert(colX >= 0);
+      assert(rowX >= 0);
+
+      // perform row operations to convert myMatrix[i][colX] to zero using rowX.
+      const double scale_factor = myMatrix[i][colX];
+      stringRep << myMatrix[rowX][colX] << " * R" << i + 1 << " - "
+                << scale_factor << " * R" << rowX + 1 << endl;
+      scale_row(i, double(1 / myMatrix[rowX][colX]));
+      add_rows(i, rowX, -scale_factor);
+      stringRep << stringify() << endl;
+      // std::cout << stringRep.str();
+
+      // update dom
+      dom[i] = get_dom_index(i, row_count);
     }
   }
 
+  stringRep << "Each row now contains 1 dominant element." << endl;
   // std::cout << stringRep.str() << endl;
   //;
 
@@ -635,18 +660,30 @@ void SquareMatrix::to_diag() {
   // identify and remove duplicates in array
   while (changed) {
     changed = false;
+
     for (int i = 0; i < row_count; i++) {
       for (int j = i + 1; j < row_count; j++) {
         if (dom[i] == dom[j]) {
+          // count the number of zeroes in row i.
+          int zero_count = 0;
+          for (int k = 0; k < row_count; k++) {
+            if (approxEqual(myMatrix[i][k], 0) &&
+                approxEqual(myMatrix[j][k], 0))
+              zero_count++;
+          }
+
+          // If row has only two non-zero elements, do not perform row
+          // operations on row i.
+          if (zero_count == row_count - 2)
+            break;
+
+          // Convert myMatrix[i][col] to a zero using row j.
           const int col = dom[j];
           const double scale_factor = myMatrix[i][col];
           stringRep << myMatrix[j][col] << " * R" << i + 1 << " - "
                     << myMatrix[i][col] << " * R" << j + 1 << endl;
           scale_row(i, double(1 / myMatrix[j][col]));
-          // stringRep << stringify() << endl;
-
           add_rows(i, j, -scale_factor);
-          // stringRep << stringify() << endl;
 
           dom[i] = get_dom_index(i, row_count);
           changed = true;
