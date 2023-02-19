@@ -1,5 +1,6 @@
 #pragma once
 #include <algorithm>
+#include <cassert>
 #include <cmath>
 #include <iomanip>
 #include <iostream>
@@ -7,6 +8,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+
 using std::endl, std::vector, std::string;
 
 // A class for 2D square matrix.
@@ -69,10 +71,14 @@ class SquareMatrix {
   // Swaps rows of matrix
   void swap_row(int row1, int row2);
 
+  // Swaps columns of matrix
+  void swap_col(int col1, int col2);
+
   // Returns rank of matrix.
   double rank();
 
-  // Returns determinant of matrix.
+  // Returns determinant of matrix. If matrix is augmented, returns determinant
+  // of augmented matrix.
   double det();
 
   // Inverse matrix using Gauss-Jordan Elimination
@@ -112,4 +118,6 @@ class SquareMatrix {
 
   // Makes matrix diagonally dominant
   void to_diag();
+
+  int get_dom_index(int row, int row_count);
 };

@@ -45,13 +45,15 @@ double SquareMatrix::det() {
   }
 
   double determinant = 0;
-  // loop through each element in row 0
-  for (int i = 0; i < myMatrix[0].size(); i++) {
+  const int rowCount = myMatrix.size();
+
+  // loop through each element in first row
+  for (int i = 0; i < rowCount; i++) {
     // apply cofactor formula
     double el = i % 2 == 0 ? myMatrix[0][i] : -myMatrix[0][i];
 
     // get minor of current element
-    determinant += SquareMatrix(myMatrix, isAugmented).get_minor(0, i) * el;
+    determinant += get_minor(0, i) * el;
   }
   return determinant;
 }
@@ -556,7 +558,60 @@ void SquareMatrix::to_rref() {
   calculations += stringRep.str();
 }
 
-void SquareMatrix::solve_cramer() {}
+void SquareMatrix::swap_col(int col1, int col2) {
+  const int lower_bound = 0;
+  const int row_count = myMatrix.size();
+  const int upper_bound = row_count + (isAugmented ? 0 : -1);
+
+  // validate user input
+  if (col1 < lower_bound || col2 < lower_bound || col1 > upper_bound ||
+      col2 > upper_bound) {
+    throw std::invalid_argument("Invalid column indices");
+  }
+
+  // swap columns
+  for (int i = 0; i < row_count; i++) {
+    std::swap(myMatrix[i][col1], myMatrix[i][col2]);
+  }
+}
+
+void SquareMatrix::solve_cramer() {
+  if (!isAugmented) {
+    throw std::invalid_argument(
+        "Matrix is must be an augmented matrix to be able to solve it.");
+  }
+  std::stringstream stringRep;
+  const double determinant = det();
+  stringRep << "Coefficient matrix: \n\n" << stringify() << endl;
+
+  stringRep << "Determinant = " << determinant << endl << endl;
+
+  if (approxEqual(determinant, 0)) {
+    throw std::invalid_argument(
+        "Determinant must be non-zero to use Cramer's Rule");
+  }
+
+  const int rowCount = myMatrix.size();
+  vector<double> solutions(rowCount, 0);
+
+  for (int i = 0; i < rowCount; i++) {
+    stringRep << "Swap column " << i + 1 << " and column " << rowCount + 1
+              << " in original matrix" << endl
+              << endl;
+    swap_col(i, rowCount);
+    stringRep << stringify() << endl;
+    const double new_determinant = det();
+    stringRep << "New determinant: " << new_determinant << endl;
+
+    solutions[i] = new_determinant / determinant;
+    stringRep << "x" << i + 1 << " = " << new_determinant << " / "
+              << determinant << " = " << solutions[i] << endl
+              << endl;
+    swap_col(i, rowCount);
+  }
+
+  calculations += stringRep.str();
+}
 
 bool SquareMatrix::is_diag_dominant() {
   // Strict row diagonal dominance means that for each row, the absolute value
@@ -612,7 +667,7 @@ void SquareMatrix::to_diag() {
   // get rid of -1 elements in dom
   for (int i = 0; i < row_count; i++) {
     if (dom[i] == -1) {
-      // row i is has no dominant element
+      stringRep << "Row " << i + 1 << " has no dominant element" << endl;
 
       // convert a non-zero element in row i to zero.
 
