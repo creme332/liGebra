@@ -1,16 +1,22 @@
 #include "../src//SquareMatrix.h"
 #include "doctest.h"
 
-// Checks if two vectors have the same size and same elements
-void compare_vectors(vector<vector<double>> a,
-                     vector<vector<double>> b,
-                     const double tolerance = 0.001) {
+void compare_1D_vector(vector<double> a,
+                       vector<double> b,
+                       const double tolerance = 0.001) {
+  // Checks if two vectors have the same size and same elements
+  CHECK_EQ(a.size(), b.size());
+
+  for (int j = 0; j < a.size(); j++) {
+    REQUIRE(a[j] - b[j] == doctest::Approx(0).epsilon(tolerance));
+  }
+}
+void compare_2D_vectors(vector<vector<double>> a,
+                        vector<vector<double>> b,
+                        const double tolerance = 0.001) {
   // allow for a 0.1% error
   for (int i = 0; i < a.size(); i++) {
-    CHECK_EQ(a[i].size(), b[i].size());
-    for (int j = 0; j < a[i].size(); j++) {
-      REQUIRE(a[i][j] - b[i][j] == doctest::Approx(0).epsilon(tolerance));
-    }
+    compare_1D_vector(a[i], b[i]);
   }
 }
 
@@ -123,7 +129,7 @@ TEST_CASE("Test Gauss-Jacobi and Gauss-Seidel") {
                                                      {-3.1667, 3.5952, 1.2351},
                                                      {-1.5382, 3.1862, 1.7956},
                                                      {-1.1393, 3.0491, 1.9468}};
-      compare_vectors(table, expectedAnswer);
+      compare_2D_vectors(table, expectedAnswer);
     }
     SUBCASE("3x3 using Jacobi") {
       SquareMatrix A({{4, -1, -1, 3}, {-2, 6, 1, 9}, {-1, 1, 7, -6}}, true);
@@ -134,7 +140,7 @@ TEST_CASE("Test Gauss-Jacobi and Gauss-Seidel") {
                                                      {0.911, 1.893, -0.964},
                                                      {0.982, 1.964, -0.997}};
       // A.calc_cout();
-      compare_vectors(table, expectedAnswer);
+      compare_2D_vectors(table, expectedAnswer);
     }
     SUBCASE("4x4 using Seidel") {
       SquareMatrix A({{10, 1, 2, 3, 30},
@@ -149,7 +155,7 @@ TEST_CASE("Test Gauss-Jacobi and Gauss-Seidel") {
           {1.1682, 1.6882, 3.1117, 3.8596},
           {1.0510, 1.9349, 3.0243, 3.9688}};
       // A.calc_cout();
-      compare_vectors(expectedAnswer, table);
+      compare_2D_vectors(expectedAnswer, table);
     }
   }
 }
@@ -179,7 +185,7 @@ TEST_CASE("Tranpose matrix") {
     A.transpose();
     vector<vector<double>> expected = {{5, 1, 1}, {6, 4, -2}, {-1, 2, 5}};
     // std::cout << A.stringify();
-    compare_vectors(expected, A.get_vec());
+    compare_2D_vectors(expected, A.get_vec());
   }
 }
 
@@ -192,14 +198,14 @@ TEST_CASE("Test matrix inverse using Leibniz") {
         {double(24) / 108, double(-28) / 108, double(16) / 108},
         {double(-3) / 108, double(26) / 108, double(-11) / 108},
         {double(-6) / 108, double(16) / 108, double(14) / 108}};
-    compare_vectors(expected, A.get_vec());
+    compare_2D_vectors(expected, A.get_vec());
   }
 
   SUBCASE("3x3 non-invertible matrix") {
     SquareMatrix A({{5, 6, -1}, {5, 6, -1}, {1, -2, 5}});
     A.leb_inv();
     // A.calc_cout();
-    compare_vectors({{5, 6, -1}, {5, 6, -1}, {1, -2, 5}}, A.get_vec());
+    compare_2D_vectors({{5, 6, -1}, {5, 6, -1}, {1, -2, 5}}, A.get_vec());
   }
 
   SUBCASE("4x4 invertible matrix") {
@@ -207,7 +213,7 @@ TEST_CASE("Test matrix inverse using Leibniz") {
         {{1, 2, 3, 4}, {1, 4, 2, 0}, {1, -2, 5, -10}, {1, -2, 7, -10}});
     A.leb_inv();
     // A.calc_cout();
-    compare_vectors(
+    compare_2D_vectors(
         {{double(10) / 11, double(-3) / 11, double(26) / 11, -2},
          {double(-5) / 22, double(7) / 22, double(-15) / 44, double(1) / 4},
          {0, 0, double(-1) / 2, double(1) / 2},
@@ -223,14 +229,14 @@ TEST_CASE("Test row echelon form") {
     // A.calc_cout();
     vector<vector<double>> expected = {
         {1, 1.2, -0.2}, {0, 1, 0.786}, {0, 0, 1}};
-    compare_vectors(expected, A.get_vec());
+    compare_2D_vectors(expected, A.get_vec());
   }
 
   SUBCASE("3x3 matrix in REF with a zero row") {
     SquareMatrix A({{1, 5, 0}, {0, 0, 1}, {0, 0, 0}});
     A.to_ref();
     // A.calc_cout();
-    compare_vectors({{1, 5, 0}, {0, 0, 1}, {0, 0, 0}}, A.get_vec());
+    compare_2D_vectors({{1, 5, 0}, {0, 0, 1}, {0, 0, 0}}, A.get_vec());
   }
 
   SUBCASE("3x3 matrix already in REF") {
@@ -246,14 +252,14 @@ TEST_CASE("Test reduced row echelon form") {
     A.to_rref();
     // A.calc_cout();
     vector<vector<double>> expected = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
-    compare_vectors(expected, A.get_vec());
+    compare_2D_vectors(expected, A.get_vec());
   }
 
   SUBCASE("3x3 matrix in REF with a zero row") {
     SquareMatrix A({{1, 5, 0}, {0, 0, 1}, {0, 0, 0}});
     A.to_rref();
     // A.calc_cout();
-    compare_vectors({{1, 5, 0}, {0, 0, 1}, {0, 0, 0}}, A.get_vec());
+    compare_2D_vectors({{1, 5, 0}, {0, 0, 1}, {0, 0, 0}}, A.get_vec());
   }
 
   SUBCASE("4x4 system of equations with unique solution") {
@@ -265,7 +271,7 @@ TEST_CASE("Test reduced row echelon form") {
 
     A.to_rref();
     // A.calc_cout();
-    compare_vectors(
+    compare_2D_vectors(
         {{1, 0, 0, 0, 1}, {0, 1, 0, 0, 2}, {0, 0, 1, 0, 3}, {0, 0, 0, 1, 4}},
         A.get_vec());
   }
@@ -278,11 +284,74 @@ TEST_CASE("Test reduced row echelon form") {
                    true);
 
     A.to_rref();
-    A.calc_cout();
-    compare_vectors({{1, 0.1, 0.2, 0.3, 3},
-                     {0, 0, 0, 0, 0},
-                     {0, 0, 0, 0, 0},
-                     {0, 0, 0, 0, 0}},
-                    A.get_vec());
+    // A.calc_cout();
+    compare_2D_vectors({{1, 0.1, 0.2, 0.3, 3},
+                        {0, 0, 0, 0, 0},
+                        {0, 0, 0, 0, 0},
+                        {0, 0, 0, 0, 0}},
+                       A.get_vec());
+  }
+}
+
+TEST_CASE("Test algorithm to make matrix diagonally dominant") {
+  SUBCASE("3x4 DD augmented matrix circles on each row (Example 1)") {
+    SquareMatrix A({{2, 6, -1, 85}, {6, 15, 2, 72}, {1, 1, 54, 110}}, true);
+
+    // A.to_diag();
+    // vector<vector<double>> table = A.solve_approx(1, {0, 0, 0}, 3);
+
+    const vector<vector<double>> expectedAnswer = {
+        {0, 0, 0},
+        {-1, 0.9333, 3.6533, 3.3595},
+        {1.1682, 1.6882, 3.1117, 3.8596},
+        {1.0510, 1.9349, 3.0243, 3.9688}};
+    // compare_2D_vectors(expectedAnswer, table);
+    // A.solve_cramer();
+    // A.calc_cout();
+  }
+
+  SUBCASE("3x4 DD augmented matrix with no initial circles") {
+    SquareMatrix A({{2, 3, 4, 9}, {7, 8, 9, 24}, {15, 17, 18, 50}}, true);
+    // A.to_diag();
+    //  A.solve_approx(1, {0, 0, 0});
+    //  A.calc_cout();
+  }
+}
+
+TEST_CASE("Test Cramer's Rule") {
+  SUBCASE("3-var system with infinite solutions") {
+    SquareMatrix A({{2, 6, -1, 85}, {2, 6, -1, 15}, {1, 1, 54, 110}}, true);
+    CHECK_THROWS_AS(A.solve_cramer(), std::exception);
+  }
+
+  SUBCASE("non-augmented matrix") {
+    SquareMatrix A({{1, 1, 1, 1}, {0, 2, -6, 2}, {3, 6, -5, 4}, {0, 2, -6, 2}},
+                   false);
+    CHECK_THROWS_AS(A.solve_cramer(), std::exception);
+  }
+
+  SUBCASE("2-var system with unique solutions") {
+    SquareMatrix A({{1, 1, 2}, {0, 2, 2}}, true);
+    vector<double> solutions = A.solve_cramer();
+    compare_1D_vector(solutions, {1, 1});
+  }
+
+  SUBCASE("3-var system with unique solutions") {
+    SquareMatrix A({{1, 1, 1, 1}, {0, 2, -6, 2}, {3, 6, -5, 4}}, true);
+    vector<double> solutions = A.solve_cramer();
+    compare_1D_vector(solutions, {8, -5, -2});
+  }
+
+  SUBCASE("4-var system with unique solutions") {
+    SquareMatrix A(
+        {
+            {1, 1, 1, 1, 2},
+            {0, 2, -6, 2, 4},
+            {3, 6, -5, 4, 10},
+            {5, 1, -5, 4, 5},
+        },
+        true);
+    vector<double> solutions = A.solve_cramer();
+    compare_1D_vector(solutions, {0, 1, 0, 1});
   }
 }
