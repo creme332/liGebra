@@ -108,7 +108,7 @@ class SquareMatrix {
   void to_rref();
 
   // Solves a system of equation using cramers rule.
-  void solve_cramer();
+  vector<double> solve_cramer();
 
   // Returns a vector of eigenvalues of matrix
   vector<double> eig_val();
@@ -118,6 +118,4 @@ class SquareMatrix {
 
   // Makes matrix diagonally dominant
   void to_diag();
-
-  int get_dom_index(int row, int row_count);
 };

@@ -7,7 +7,7 @@ SquareMatrix::SquareMatrix(vector<vector<double>> initMatrix,
     myMatrix = initMatrix;
     isAugmented = _isAugmented;
   } else {
-    throw std::invalid_argument("Matrix is not a square matrix.");
+    throw std::invalid_argument("Invalid matrix or augmented matrix.");
   }
 }
 
@@ -575,10 +575,10 @@ void SquareMatrix::swap_col(int col1, int col2) {
   }
 }
 
-void SquareMatrix::solve_cramer() {
+vector<double> SquareMatrix::solve_cramer() {
   if (!isAugmented) {
     throw std::invalid_argument(
-        "Matrix is must be an augmented matrix to be able to solve it.");
+        "Matrix is must be an augmented matrix to use Cramer's rule.");
   }
   std::stringstream stringRep;
   const double determinant = det();
@@ -611,6 +611,8 @@ void SquareMatrix::solve_cramer() {
   }
 
   calculations += stringRep.str();
+
+  return solutions;
 }
 
 bool SquareMatrix::is_diag_dominant() {
@@ -630,28 +632,30 @@ bool SquareMatrix::is_diag_dominant() {
   return 1;
 }
 
-int SquareMatrix::get_dom_index(int row, int row_count) {
-  // get row sum
-  double row_sum = 0;
-  for (int j = 0; j < row_count; j++) {
-    row_sum += abs(myMatrix[row][j]);
-  }
-
-  // get column index of strictly dominant element in current row
-  for (int col = 0; col < row_count; col++) {
-    if (abs(myMatrix[row][col]) > row_sum - abs(myMatrix[row][col])) {
-      return col;
-    }
-  }
-  return -1;
-}
-
 void SquareMatrix::to_diag() {
-  if (is_diag_dominant())
+  // Returns index of dominant element in a row.
+  auto get_dom_index = [](const vector<double> row, const int row_size) {
+    // calculate sum of absolute values on row
+    double row_sum = 0;
+    for (int j = 0; j < row_size; j++) {
+      row_sum += abs(row[j]);
+    }
+
+    // get column index of strictly dominant element in current row
+    for (int col = 0; col < row_size; col++) {
+      if (abs(row[col]) > row_sum - abs(row[col])) {
+        return col;
+      }
+    }
+    return -1;
+  };
+  // TODO: If row has no dominant element, form a 0 at the position where
+  // another row has a dominant element
+
+  if (is_diag_dominant())  // if algorithm is successful, remove this line
     return;
   std::stringstream stringRep;
-  stringRep << "Converting to matrix to strict diagonally dominant form: "
-            << endl;
+  stringRep << "Converting matrix to strict diagonally dominant form: " << endl;
   stringRep << stringify() << endl;
   const int row_count = myMatrix.size();
 
@@ -661,10 +665,11 @@ void SquareMatrix::to_diag() {
 
   // initialise dom
   for (int row = 0; row < row_count; row++) {
-    dom[row] = get_dom_index(row, row_count);
+    dom[row] = get_dom_index(myMatrix[row], row_count);
   }
 
-  // get rid of -1 elements in dom
+  // We want each row to have 1 dominant element so we should get rid of
+  // elements == -1 in dom
   for (int i = 0; i < row_count; i++) {
     if (dom[i] == -1) {
       stringRep << "Row " << i + 1 << " has no dominant element" << endl;
@@ -693,27 +698,25 @@ void SquareMatrix::to_diag() {
       assert(rowX >= 0);
 
       // perform row operations to convert myMatrix[i][colX] to zero using rowX.
+
+      // myMatrix[rowX][colX] * R_i - myMatrix[i][colX] * R_rowX
       const double scale_factor = myMatrix[i][colX];
       stringRep << myMatrix[rowX][colX] << " * R" << i + 1 << " - "
                 << scale_factor << " * R" << rowX + 1 << endl;
       scale_row(i, double(1 / myMatrix[rowX][colX]));
       add_rows(i, rowX, -scale_factor);
       stringRep << stringify() << endl;
-      // std::cout << stringRep.str();
 
       // update dom
-      dom[i] = get_dom_index(i, row_count);
+      dom[i] = get_dom_index(myMatrix[i], row_count);
     }
   }
 
   stringRep << "Each row now contains 1 dominant element." << endl;
-  // std::cout << stringRep.str() << endl;
-  //;
-
-  bool changed = true;
 
   // identify and remove duplicates in array
-  while (changed) {
+  bool changed;
+  do {
     changed = false;
 
     for (int i = 0; i < row_count; i++) {
@@ -729,8 +732,8 @@ void SquareMatrix::to_diag() {
 
           // If row has only two non-zero elements, do not perform row
           // operations on row i.
-          if (zero_count == row_count - 2)
-            break;
+          // if (zero_count == row_count - 2)
+          //  break;
 
           // Convert myMatrix[i][col] to a zero using row j.
           const int col = dom[j];
@@ -740,7 +743,7 @@ void SquareMatrix::to_diag() {
           scale_row(i, double(1 / myMatrix[j][col]));
           add_rows(i, j, -scale_factor);
 
-          dom[i] = get_dom_index(i, row_count);
+          dom[i] = get_dom_index(myMatrix[i], row_count);
           changed = true;
           stringRep << stringify() << endl;
           // std::cout << stringRep.str();
@@ -750,6 +753,18 @@ void SquareMatrix::to_diag() {
       if (changed)
         break;
     }
+
+  } while (changed);
+
+  // At this point, each row has a single dominant element and each column has a
+  // single dominant element
+  // Rearrange rows to place each dominant element along leading diagonal.
+  for (int row = 0; row < row_count - 1; row++) {
+    swap_row(row, dom[row]);
   }
+
+  stringRep << "Final matrix after rearranging rows: " << endl;
+  stringRep << stringify() << endl;
+
   calculations += stringRep.str();
 }
