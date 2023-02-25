@@ -65,25 +65,29 @@ TEST_CASE("Test determinant") {
   }
 }
 
-TEST_CASE("Check for strict diagonal dominance") {
+TEST_CASE("Test diagonal dominance") {
   SUBCASE("3x4 DD augmented matrix") {
     SquareMatrix A({{-22, 3, 8, 27}, {3, -6, 2, -14}, {3, 3, 21, 48}}, true);
-    CHECK_EQ(A.is_diag_dominant(), true);
+    CHECK_EQ(A.is_diag_dominant(1), 1);
+    CHECK_EQ(A.is_diag_dominant(), 1);
   }
 
   SUBCASE("3x4 non-DD augmented matrix") {
     SquareMatrix A({{-2, 3, 8, 27}, {3, -5, 2, -14}, {3, 3, 21, 48}}, true);
+    CHECK_EQ(A.is_diag_dominant(1), 0);
     CHECK_EQ(A.is_diag_dominant(), 0);
   }
 
   SUBCASE("3x3 non-DD matrix") {
     SquareMatrix A({{-22, 3, 8}, {3, -10, 2}, {3, 3, 21}}, true);
-    CHECK_EQ(A.is_diag_dominant(), true);
+    CHECK_EQ(A.is_diag_dominant(1), 1);
+    CHECK_EQ(A.is_diag_dominant(), 1);
   }
 
   SUBCASE("3x3 non-strict DD matrix") {
     SquareMatrix A({{-22, 3, 8}, {3, -5, 2}, {3, 3, 21}}, true);
-    CHECK_EQ(A.is_diag_dominant(), false);
+    CHECK_EQ(A.is_diag_dominant(1), 0);
+    CHECK_EQ(A.is_diag_dominant(), 1);
   }
 }
 
@@ -294,27 +298,43 @@ TEST_CASE("Test reduced row echelon form") {
 }
 
 TEST_CASE("Test algorithm to make matrix diagonally dominant") {
-  SUBCASE("3x4 DD augmented matrix circles on each row (Example 1)") {
+  // TODO: update valid to make it work for non-augmented matrices
+  // Returns true if matrix can be used with Gauss-seidel/Gauss-Jacobi
+  auto valid = [](vector<vector<double>> augmentedMatrix) {
+    for (int row = 0; row < augmentedMatrix.size(); row++) {
+      // count number of non-zero elements in this row excluding augmented
+      // column
+      int c = 0;
+      for (int col = 0; col < augmentedMatrix[row].size() - 1; col++) {
+        if (augmentedMatrix[row][col] != 0) {
+          c++;
+        };
+        if (c > 1)
+          break;
+      }
+      if (c <= 1)
+        return false;
+    }
+    return true;
+  };
+  SUBCASE("3-var system with circles on each row (Example 1)") {
     SquareMatrix A({{2, 6, -1, 85}, {6, 15, 2, 72}, {1, 1, 54, 110}}, true);
-
-    // A.to_diag();
-    // vector<vector<double>> table = A.solve_approx(1, {0, 0, 0}, 3);
-
-    const vector<vector<double>> expectedAnswer = {
-        {0, 0, 0},
-        {-1, 0.9333, 3.6533, 3.3595},
-        {1.1682, 1.6882, 3.1117, 3.8596},
-        {1.0510, 1.9349, 3.0243, 3.9688}};
-    // compare_2D_vectors(expectedAnswer, table);
-    // A.solve_cramer();
-    // A.calc_cout();
+    A.to_diag();
+    A.solve_approx(1, {0, 0, 0});
+    A.calc_cout();
+    CHECK_EQ(A.is_diag_dominant(), 1);
+    compare_1D_vector(A.solve_cramer(), {-157.1661, 67.1726, 3.7036});
   }
 
-  SUBCASE("3x4 DD augmented matrix with no initial circles") {
-    SquareMatrix A({{2, 3, 4, 9}, {7, 8, 9, 24}, {15, 17, 18, 50}}, true);
-    // A.to_diag();
-    //  A.solve_approx(1, {0, 0, 0});
-    //  A.calc_cout();
+  SUBCASE("3-var system with 2 initial circles") {
+    // TODO: DOES NOT WORK AS EXPECTED
+    SquareMatrix A({{1, 1, 1, 4}, {3, -10, 0, -17}, {2, -1, -1, -1}}, true);
+    A.to_diag();
+    // A.calc_cout();
+    //  TODO: Check if each row has at least 2 non-zero elements
+
+    CHECK_EQ(A.is_diag_dominant(), 1);
+    compare_1D_vector(A.solve_cramer(), {1, 2, 1});
   }
 }
 
@@ -353,5 +373,6 @@ TEST_CASE("Test Cramer's Rule") {
         true);
     vector<double> solutions = A.solve_cramer();
     compare_1D_vector(solutions, {0, 1, 0, 1});
+    // A.calc_cout();
   }
 }

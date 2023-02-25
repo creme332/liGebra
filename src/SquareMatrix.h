@@ -114,7 +114,7 @@ class SquareMatrix {
   vector<double> eig_val();
 
   // Returns true if matrix is strictly diagonally dominant.
-  bool is_diag_dominant();
+  bool is_diag_dominant(bool strict = false);
 
   // Makes matrix diagonally dominant
   void to_diag();

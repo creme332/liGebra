@@ -615,7 +615,7 @@ vector<double> SquareMatrix::solve_cramer() {
   return solutions;
 }
 
-bool SquareMatrix::is_diag_dominant() {
+bool SquareMatrix::is_diag_dominant(bool strict) {
   // Strict row diagonal dominance means that for each row, the absolute value
   // of the diagonal term is greater than the sum of absolute values of other
   // terms
@@ -626,8 +626,14 @@ bool SquareMatrix::is_diag_dominant() {
     for (int j = 0; j < row_count; j++) {
       row_sum += abs(myMatrix[i][j]);
     }
-    if (abs(myMatrix[i][i]) <= row_sum - abs(myMatrix[i][i]))
-      return 0;
+    if (strict) {
+      // check for strict diagonal dominance
+      if (abs(myMatrix[i][i]) <= row_sum - abs(myMatrix[i][i]))
+        return 0;
+    } else {
+      if (abs(myMatrix[i][i]) < row_sum - abs(myMatrix[i][i]))
+        return 0;
+    }
   }
   return 1;
 }
@@ -697,7 +703,7 @@ void SquareMatrix::to_diag() {
       assert(colX >= 0);
       assert(rowX >= 0);
 
-      // perform row operations to convert myMatrix[i][colX] to zero using rowX.
+      // Perform row operations to convert myMatrix[i][colX] to zero using rowX.
 
       // myMatrix[rowX][colX] * R_i - myMatrix[i][colX] * R_rowX
       const double scale_factor = myMatrix[i][colX];
