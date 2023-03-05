@@ -638,9 +638,10 @@ bool SquareMatrix::is_diag_dominant(bool strict) {
   return 1;
 }
 
-void SquareMatrix::to_diag() {
-  // Returns index of dominant element in a row.
-  auto get_dom_index = [](const vector<double> row, const int row_size) {
+void SquareMatrix::to_diag(bool strict) {
+  // Returns index of dominant element in a row. Returns -1 if not found.
+  auto get_dom_index = [](const vector<double> row, const int row_size,
+                          bool is_strict) {
     // calculate sum of absolute values on row
     double row_sum = 0;
     for (int j = 0; j < row_size; j++) {
@@ -649,8 +650,14 @@ void SquareMatrix::to_diag() {
 
     // get column index of strictly dominant element in current row
     for (int col = 0; col < row_size; col++) {
-      if (abs(row[col]) > row_sum - abs(row[col])) {
-        return col;
+      if (is_strict) {
+        if (abs(row[col]) > row_sum - abs(row[col])) {
+          return col;
+        }
+      } else {
+        if (abs(row[col]) >= row_sum - abs(row[col])) {
+          return col;
+        }
       }
     }
     return -1;
@@ -658,7 +665,7 @@ void SquareMatrix::to_diag() {
   // TODO: If row has no dominant element, form a 0 at the position where
   // another row has a dominant element
 
-  if (is_diag_dominant())  // if algorithm is successful, remove this line
+  if (is_diag_dominant(strict))  // if algorithm is successful, remove this line
     return;
   std::stringstream stringRep;
   stringRep << "Converting matrix to strict diagonally dominant form: " << endl;
@@ -671,7 +678,7 @@ void SquareMatrix::to_diag() {
 
   // initialise dom
   for (int row = 0; row < row_count; row++) {
-    dom[row] = get_dom_index(myMatrix[row], row_count);
+    dom[row] = get_dom_index(myMatrix[row], row_count, strict);
   }
 
   // We want each row to have 1 dominant element so we should get rid of
@@ -714,7 +721,7 @@ void SquareMatrix::to_diag() {
       stringRep << stringify() << endl;
 
       // update dom
-      dom[i] = get_dom_index(myMatrix[i], row_count);
+      dom[i] = get_dom_index(myMatrix[i], row_count, strict);
     }
   }
 
@@ -749,10 +756,9 @@ void SquareMatrix::to_diag() {
           scale_row(i, double(1 / myMatrix[j][col]));
           add_rows(i, j, -scale_factor);
 
-          dom[i] = get_dom_index(myMatrix[i], row_count);
+          dom[i] = get_dom_index(myMatrix[i], row_count, strict);
           changed = true;
           stringRep << stringify() << endl;
-          // std::cout << stringRep.str();
           break;
         }
       }

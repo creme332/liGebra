@@ -297,8 +297,9 @@ TEST_CASE("Test reduced row echelon form") {
   }
 }
 
-TEST_CASE("Test algorithm to make matrix diagonally dominant") {
+TEST_CASE("Test to_diag()") {
   // TODO: update valid to make it work for non-augmented matrices
+  
   // Returns true if matrix can be used with Gauss-seidel/Gauss-Jacobi
   auto valid = [](vector<vector<double>> augmentedMatrix) {
     for (int row = 0; row < augmentedMatrix.size(); row++) {
@@ -319,9 +320,8 @@ TEST_CASE("Test algorithm to make matrix diagonally dominant") {
   };
   SUBCASE("3-var system with circles on each row (Example 1)") {
     SquareMatrix A({{2, 6, -1, 85}, {6, 15, 2, 72}, {1, 1, 54, 110}}, true);
-    A.to_diag();
-    A.solve_approx(1, {0, 0, 0});
-    A.calc_cout();
+    A.to_diag(true);
+    //A.calc_cout();
     CHECK_EQ(A.is_diag_dominant(), 1);
     compare_1D_vector(A.solve_cramer(), {-157.1661, 67.1726, 3.7036});
   }
@@ -329,8 +329,8 @@ TEST_CASE("Test algorithm to make matrix diagonally dominant") {
   SUBCASE("3-var system with 2 initial circles") {
     // TODO: DOES NOT WORK AS EXPECTED
     SquareMatrix A({{1, 1, 1, 4}, {3, -10, 0, -17}, {2, -1, -1, -1}}, true);
-    A.to_diag();
-    // A.calc_cout();
+    A.to_diag(false);
+     A.calc_cout();
     //  TODO: Check if each row has at least 2 non-zero elements
 
     CHECK_EQ(A.is_diag_dominant(), 1);
