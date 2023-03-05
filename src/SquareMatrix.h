@@ -39,6 +39,10 @@ class SquareMatrix {
  public:
   SquareMatrix(vector<vector<double>> initMatrix, bool _isAugmented = 0);
 
+  SquareMatrix operator+(SquareMatrix A);
+  SquareMatrix operator-(SquareMatrix A);
+  SquareMatrix operator*(SquareMatrix A);
+
   // Rotates matrix 90deg clockwise.
   void transpose();
 
@@ -117,5 +121,5 @@ class SquareMatrix {
   bool is_diag_dominant(bool strict = false);
 
   // Makes matrix diagonally dominant
-  void to_diag();
+  void to_diag(bool strict);
 };

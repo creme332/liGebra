@@ -617,7 +617,7 @@ vector<double> SquareMatrix::solve_cramer() {
 
 bool SquareMatrix::is_diag_dominant(bool strict) {
   // Strict row diagonal dominance means that for each row, the absolute value
-  // of the diagonal term is greater than the sum of absolute values of other
+  // of the diagonal term is greater than the result of absolute values of other
   // terms
   const int row_count = myMatrix.size();
   // if matrix is augmented, ignore columns after row_count.
@@ -642,7 +642,7 @@ void SquareMatrix::to_diag(bool strict) {
   // Returns index of dominant element in a row. Returns -1 if not found.
   auto get_dom_index = [](const vector<double> row, const int row_size,
                           bool is_strict) {
-    // calculate sum of absolute values on row
+    // calculate result of absolute values on row
     double row_sum = 0;
     for (int j = 0; j < row_size; j++) {
       row_sum += abs(row[j]);
@@ -779,4 +779,57 @@ void SquareMatrix::to_diag(bool strict) {
   stringRep << stringify() << endl;
 
   calculations += stringRep.str();
+}
+
+SquareMatrix SquareMatrix::operator+(SquareMatrix otherMatrix) {
+  // check if matrices have the same dimensions
+
+  // add matrices
+  const int row_size = myMatrix.size();
+  const int col_size = myMatrix[0].size();
+  vector<vector<double>> result(row_size, vector<double>(col_size, 0));
+  vector<vector<double>> A = otherMatrix.get_vec();
+
+  for (int i = 0; i < row_size; i++) {
+    for (int j = 0; j < col_size; j++) {
+      result[i][j] = myMatrix[i][j] + A[i][j];
+    }
+  }
+  return SquareMatrix(result, isAugmented);
+}
+
+SquareMatrix SquareMatrix::operator-(SquareMatrix otherMatrix) {
+  // check if matrices have the same dimensions
+
+  // subtract matrices
+  const int row_size = myMatrix.size();
+  const int col_size = myMatrix[0].size();
+  vector<vector<double>> result(row_size, vector<double>(col_size, 0));
+  vector<vector<double>> A = otherMatrix.get_vec();
+
+  for (int i = 0; i < row_size; i++) {
+    for (int j = 0; j < col_size; j++) {
+      result[i][j] = myMatrix[i][j] - A[i][j];
+    }
+  }
+  return SquareMatrix(result, isAugmented);
+}
+
+SquareMatrix SquareMatrix::operator*(SquareMatrix otherMatrix) {
+  if (isAugmented || otherMatrix.isAugmented) {
+    throw std::invalid_argument("Cannot multiply augmented matrices");
+  }
+  // multiply matrices
+  const int row_size = myMatrix.size();
+  vector<vector<double>> result(row_size, vector<double>(row_size, 0));
+  vector<vector<double>> A = otherMatrix.get_vec();
+
+  for (int i = 0; i < row_size; i++) {
+    for (int j = 0; j < row_size; j++) {
+      for (int k = 0; k < row_size; k++) {
+        result[i][j] += myMatrix[i][k] * A[k][j];
+      }
+    }
+  }
+  return SquareMatrix(result, isAugmented);
 }
