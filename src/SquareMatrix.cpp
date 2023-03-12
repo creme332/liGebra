@@ -782,13 +782,19 @@ void SquareMatrix::to_diag(bool strict) {
 }
 
 SquareMatrix SquareMatrix::operator+(SquareMatrix otherMatrix) {
-  // check if matrices have the same dimensions
-
+  if (isAugmented || otherMatrix.isAugmented) {
+    throw std::invalid_argument("Cannot add augmented matrices");
+  }
   // add matrices
   const int row_size = myMatrix.size();
   const int col_size = myMatrix[0].size();
   vector<vector<double>> result(row_size, vector<double>(col_size, 0));
   vector<vector<double>> A = otherMatrix.get_vec();
+
+  // check if matrices have the same dimensions
+  if (myMatrix.size() != A.size()) {
+    throw std::invalid_argument("Matrices must have same dimensions");
+  }
 
   for (int i = 0; i < row_size; i++) {
     for (int j = 0; j < col_size; j++) {
@@ -799,13 +805,18 @@ SquareMatrix SquareMatrix::operator+(SquareMatrix otherMatrix) {
 }
 
 SquareMatrix SquareMatrix::operator-(SquareMatrix otherMatrix) {
-  // check if matrices have the same dimensions
-
-  // subtract matrices
+  if (isAugmented || otherMatrix.isAugmented) {
+    throw std::invalid_argument("Cannot subtract augmented matrices");
+  }
   const int row_size = myMatrix.size();
   const int col_size = myMatrix[0].size();
   vector<vector<double>> result(row_size, vector<double>(col_size, 0));
   vector<vector<double>> A = otherMatrix.get_vec();
+
+  // check if matrices have the same dimensions
+  if (myMatrix.size() != A.size()) {
+    throw std::invalid_argument("Matrices must have same dimensions");
+  }
 
   for (int i = 0; i < row_size; i++) {
     for (int j = 0; j < col_size; j++) {
@@ -823,6 +834,11 @@ SquareMatrix SquareMatrix::operator*(SquareMatrix otherMatrix) {
   const int row_size = myMatrix.size();
   vector<vector<double>> result(row_size, vector<double>(row_size, 0));
   vector<vector<double>> A = otherMatrix.get_vec();
+
+  // check if matrices have the same dimensions
+  if (myMatrix.size() != A.size()) {
+    throw std::invalid_argument("Matrices must have same dimensions");
+  }
 
   for (int i = 0; i < row_size; i++) {
     for (int j = 0; j < row_size; j++) {
