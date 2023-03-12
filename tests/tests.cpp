@@ -299,7 +299,7 @@ TEST_CASE("Test reduced row echelon form") {
 
 TEST_CASE("Test to_diag()") {
   // TODO: update valid to make it work for non-augmented matrices
-  
+
   // Returns true if matrix can be used with Gauss-seidel/Gauss-Jacobi
   auto valid = [](vector<vector<double>> augmentedMatrix) {
     for (int row = 0; row < augmentedMatrix.size(); row++) {
@@ -321,7 +321,7 @@ TEST_CASE("Test to_diag()") {
   SUBCASE("3-var system with circles on each row (Example 1)") {
     SquareMatrix A({{2, 6, -1, 85}, {6, 15, 2, 72}, {1, 1, 54, 110}}, true);
     A.to_diag(true);
-    //A.calc_cout();
+    // A.calc_cout();
     CHECK_EQ(A.is_diag_dominant(), 1);
     compare_1D_vector(A.solve_cramer(), {-157.1661, 67.1726, 3.7036});
   }
@@ -330,8 +330,8 @@ TEST_CASE("Test to_diag()") {
     // TODO: DOES NOT WORK AS EXPECTED
     SquareMatrix A({{1, 1, 1, 4}, {3, -10, 0, -17}, {2, -1, -1, -1}}, true);
     A.to_diag(false);
-     A.calc_cout();
-    //  TODO: Check if each row has at least 2 non-zero elements
+    // A.calc_cout();
+    //   TODO: Check if each row has at least 2 non-zero elements
 
     CHECK_EQ(A.is_diag_dominant(), 1);
     compare_1D_vector(A.solve_cramer(), {1, 2, 1});
@@ -374,5 +374,48 @@ TEST_CASE("Test Cramer's Rule") {
     vector<double> solutions = A.solve_cramer();
     compare_1D_vector(solutions, {0, 1, 0, 1});
     // A.calc_cout();
+  }
+}
+
+TEST_CASE("Test operator") {
+  SUBCASE("add 2x2") {
+    SquareMatrix A({{2, 10}, {0, 0}});
+    SquareMatrix B({{0, -1}, {1, 0}});
+    compare_2D_vectors((A + B).get_vec(), {{2, 9}, {1, 0}});
+  }
+
+  SUBCASE("matrix operations on 2x2 and 3x3") {
+    SquareMatrix A({{2, 10}, {0, 0}});
+    SquareMatrix B({
+        {0, -1, 5},
+        {0, -1, 5},
+        {0, -1, 5},
+    });
+    CHECK_THROWS_AS((A + B), std::exception);
+    CHECK_THROWS_AS((A - B), std::exception);
+    CHECK_THROWS_AS((A * B), std::exception);
+  }
+
+  SUBCASE("matrix operation on augmented matrices") {
+    SquareMatrix A(
+        {
+            {0, -1, 5},
+            {5, -1, 5},
+        },
+        true);
+    CHECK_THROWS_AS((A * A), std::exception);
+    CHECK_THROWS_AS((A - A), std::exception);
+    CHECK_THROWS_AS((A + A), std::exception);
+  }
+
+  SUBCASE("subtract 2x2") {
+    SquareMatrix A({{2, 10}, {0, 0}});
+    SquareMatrix B({{0, -1}, {1, 0}});
+    compare_2D_vectors((A - B).get_vec(), {{2, 11}, {-1, 0}});
+  }
+  SUBCASE("multiply 2x2") {
+    SquareMatrix A({{2, 10}, {0, 0}});
+    SquareMatrix B({{0, -1}, {1, 0}});
+    compare_2D_vectors((A * B).get_vec(), {{10, -2}, {0, 0}});
   }
 }
