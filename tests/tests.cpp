@@ -226,6 +226,41 @@ TEST_CASE("Test matrix inverse using Leibniz") {
   }
 }
 
+TEST_CASE("Test matrix inverse using Gauss") {
+  SUBCASE("3x3 invertible matrix") {
+    SquareMatrix A({{5, 6, -1}, {1, 4, 2}, {1, -2, 5}});
+    vector<vector<double>> result = A.gauss_inv();
+    // A.calc_cout();
+    vector<vector<double>> expected = {
+        {double(24) / 108, double(-28) / 108, double(16) / 108},
+        {double(-3) / 108, double(26) / 108, double(-11) / 108},
+        {double(-6) / 108, double(16) / 108, double(14) / 108}};
+    compare_2D_vectors(expected, result);
+    compare_2D_vectors(A.get_vec(), result);
+  }
+
+  SUBCASE("3x3 non-invertible matrix") {
+    SquareMatrix A({{5, 6, -1}, {5, 6, -1}, {1, -2, 5}});
+    vector<vector<double>> result = A.gauss_inv();
+    // A.calc_cout();
+    compare_2D_vectors({{}}, result);
+  }
+
+  SUBCASE("4x4 invertible matrix") {
+    SquareMatrix A(
+        {{1, 2, 3, 4}, {1, 4, 2, 0}, {1, -2, 5, -10}, {1, -2, 7, -10}});
+    vector<vector<double>> result = A.gauss_inv();
+    // A.calc_cout();
+    compare_2D_vectors(
+        {{double(10) / 11, double(-3) / 11, double(26) / 11, -2},
+         {double(-5) / 22, double(7) / 22, double(-15) / 44, double(1) / 4},
+         {0, 0, double(-1) / 2, double(1) / 2},
+         {double(3) / 22, double(-1) / 11, double(-1) / 22, 0}},
+        result);
+    compare_2D_vectors(A.get_vec(), result);
+  }
+}
+
 TEST_CASE("Test row echelon form") {
   SUBCASE("3x3 matrix") {
     SquareMatrix A({{5, 6, -1}, {1, 4, 2}, {1, -2, 5}});
@@ -246,7 +281,18 @@ TEST_CASE("Test row echelon form") {
   SUBCASE("3x3 matrix already in REF") {
     SquareMatrix A({{1, 5, 0}, {0, 0, 1}, {0, 0, 0}});
     A.to_ref();
-    // A.calc_cout();
+    compare_2D_vectors({{1, 5, 0}, {0, 0, 1}, {0, 0, 0}}, A.get_vec());
+  }
+
+  SUBCASE("3-var [A | I] augmented matrix") {
+    SquareMatrix A(
+        {{3, -2, 4, 1, 0, 0}, {0, 2, -3, 0, 1, 0}, {4, 15, 11, 0, 0, 1}}, true);
+
+    A.to_ref();
+    compare_2D_vectors({{1, -2.0 / 3, 4.0 / 3, 1.0 / 3, 0, 0},
+                        {0, 1, -3.0 / 2, 0, 0.5, 0},
+                        {0, 0, 1, -8.0 / 193, -53.0 / 193, 6.0 / 193}},
+                       A.get_vec());
   }
 }
 
