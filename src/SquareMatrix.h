@@ -57,7 +57,7 @@ class SquareMatrix {
                                                vector<vector<double>> B);
 
   // Inverse matrix using Leibniz method with cofactor formula
-  void leb_inv();
+  vector<vector<double>> leb_inv();
 
   // Returns a stringified version of matrix
   std::string stringify(int dp = 3);

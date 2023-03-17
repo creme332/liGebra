@@ -249,7 +249,7 @@ vector<vector<double>> SquareMatrix::gauss_inv() {
   return inverseMatrix;
 }
 
-void SquareMatrix::leb_inv() {
+vector<vector<double>> SquareMatrix::leb_inv() {
   if (isAugmented) {
     throw std::invalid_argument("Cannot inverse an augmented matrix");
   }
@@ -273,7 +273,7 @@ void SquareMatrix::leb_inv() {
   if (determinant == 0) {
     stringRep << "Matrix has no inverse\n";
     calculations = stringRep.str();
-    return;
+    return {{}};
   }
 
   stringRep << "Inverse matrix: \n";
@@ -282,6 +282,8 @@ void SquareMatrix::leb_inv() {
   stringRep << cof.stringify();
   myMatrix = cof.get_vec();
   calculations = stringRep.str();
+
+  return myMatrix;
 }
 
 vector<vector<double>> SquareMatrix::merge_matrices(vector<vector<double>> A,
