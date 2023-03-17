@@ -62,6 +62,9 @@ class SquareMatrix {
   // Returns a stringified version of matrix
   std::string stringify(int dp = 3);
 
+  // Returns calculations in the form of a string
+  std::string get_calc();
+
   // Performs row1 + k * row2 and saves result to row1
   void add_rows(int row1, int row2, double k);
 
@@ -87,7 +90,7 @@ class SquareMatrix {
 
   // Inverse matrix using Gauss-Jordan Elimination
   // method and returns the result.
-  void gauss_inv();
+  vector<vector<double>> gauss_inv();
 
   // Outputs approximations of a system of equations using either Gauss-Jacobi
   // or Gauss-Seidel method

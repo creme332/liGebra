@@ -202,7 +202,7 @@ void SquareMatrix::swap_row(int row1, int row2) {
   std::swap(myMatrix[row1], myMatrix[row2]);
 }
 
-void SquareMatrix::gauss_inv() {
+vector<vector<double>> SquareMatrix::gauss_inv() {
   if (isAugmented) {
     throw std::invalid_argument("Cannot inverse an augmented matrix");
   }
@@ -214,52 +214,8 @@ void SquareMatrix::gauss_inv() {
   // create an augmented matrix = [A | I]
   SquareMatrix AugmentedMatrix(
       merge_matrices(myMatrix, get_identity(myMatrix.size())), true);
-  stringRep << AugmentedMatrix.stringify();
 
-  stringRep << endl;
-
-  // Convert left matrix of augmented matrix to an upper triangular matrix where
-  // each leading diagonal element is 0 or 1.
-  stringRep << "Create an upper triangular matrix in LHS" << endl;
-  for (int i = 0; i < rowCount; i++) {
-    // Make AugmentedMatrix[i][i] a pivot if possible
-
-    // perform row swapping if required
-    if (approxEqual(AugmentedMatrix.at(i, i), 0) && i != rowCount - 1) {
-      // get row index of row where i-th element is not a 0
-      int newPivotRow = AugmentedMatrix.get_next_pivot_row(i);
-      if (newPivotRow != i) {
-        // swap rows
-        AugmentedMatrix.swap_row(i, newPivotRow);
-        stringRep << "Swap rows " << newPivotRow + 1 << " and " << i + 1
-                  << endl;
-        stringRep << AugmentedMatrix.stringify() << endl;
-      }
-    }
-
-    // Scale current row to make pivot a 1
-    if (!approxEqual(AugmentedMatrix.at(i, i), 1) &&
-        !approxEqual(AugmentedMatrix.at(i, i), 0)) {
-      stringRep << "Divide R" << i + 1 << " by " << AugmentedMatrix.at(i, i)
-                << endl;
-      AugmentedMatrix.scale_row(i, AugmentedMatrix.at(i, i));
-      stringRep << AugmentedMatrix.stringify() << endl;
-    }
-
-    // make current column a pivot column
-    for (int j = i + 1; j < rowCount; j++) {
-      // output step
-      if (approxEqual(AugmentedMatrix.at(j, i), 1)) {
-        stringRep << "R" << j + 1 << "  - R" << i + 1 << endl;
-      } else {
-        stringRep << "R" << j + 1 << "  - R" << i + 1 << " * "
-                  << AugmentedMatrix.at(j, i) << endl;
-      }
-      AugmentedMatrix.add_rows(j, i, -AugmentedMatrix.at(j, i));
-
-      stringRep << AugmentedMatrix.stringify() << endl;
-    }
-  }
+  AugmentedMatrix.to_ref();
 
   // check if inverse matrix exists. For inverse matrix to exist, product of
   // leading diagonal must be 1.
@@ -270,34 +226,14 @@ void SquareMatrix::gauss_inv() {
       break;
     }
   }
-
   if (!isInvertible) {
-    stringRep << "\nNo Inverse \n";
-    stringRep << stringRep.str();
-    return;
+    calculations += AugmentedMatrix.get_calc();
+    calculations += "No Inverse\n";
+    return {{}};
   }
 
-  // convert upper triangular matrix in LHS to an identity matrix
-  stringRep << "Convert upper triangular matrix in LHS to an identity matrix"
-            << endl;
-  for (int i = rowCount - 2; i >= 0; i--) {
-    for (int j = i; j >= 0; j--) {
-      if (approxEqual(AugmentedMatrix.at(j, i + 1), 0)) {
-        // this IF statement is for optimisation only and is optional
-        continue;
-      }
-
-      // output step
-      if (approxEqual(AugmentedMatrix.at(j, i + 1), 1)) {
-        stringRep << "R" << j + 1 << "  - R" << (i + 1) + 1 << endl;
-      } else {
-        stringRep << "R" << j + 1 << "  - R" << (i + 1) + 1 << " * "
-                  << AugmentedMatrix.at(j, i + 1) << endl;
-      }
-      AugmentedMatrix.add_rows(j, i + 1, -AugmentedMatrix.at(j, i + 1));
-      stringRep << AugmentedMatrix.stringify() << endl;
-    }
-  }
+  AugmentedMatrix.to_rref();
+  stringRep << AugmentedMatrix.get_calc();
 
   // extract inverse matrix from augmented matrix
   vector<vector<double>> inverseMatrix(rowCount, vector<double>(rowCount, 0));
@@ -306,7 +242,11 @@ void SquareMatrix::gauss_inv() {
       inverseMatrix[row][col - rowCount] = AugmentedMatrix.at(row, col);
     }
   }
-  calculations = stringRep.str();
+  stringRep << "Inverse matrix:\n"
+            << SquareMatrix(inverseMatrix).stringify() << endl;
+  calculations += stringRep.str();
+  myMatrix = inverseMatrix;
+  return inverseMatrix;
 }
 
 void SquareMatrix::leb_inv() {
@@ -848,4 +788,8 @@ SquareMatrix SquareMatrix::operator*(SquareMatrix otherMatrix) {
     }
   }
   return SquareMatrix(result, isAugmented);
+}
+
+std::string SquareMatrix::get_calc() {
+  return calculations;
 }
