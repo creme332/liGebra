@@ -10,6 +10,11 @@ SquareMatrix::SquareMatrix(vector<vector<double>> initMatrix,
     throw std::invalid_argument("Invalid matrix or augmented matrix.");
   }
 }
+SquareMatrix::SquareMatrix() {
+  calculations = "";
+  myMatrix = {{}};
+  isAugmented = false;
+}
 
 bool SquareMatrix::isValid(vector<vector<double>> initMatrix,
                            bool _isAugmented) {
@@ -794,4 +799,114 @@ SquareMatrix SquareMatrix::operator*(SquareMatrix otherMatrix) {
 
 std::string SquareMatrix::get_calc() {
   return calculations;
+}
+
+void SquareMatrix::set_val(int i, int j, double x) {
+  if (i < 0 || j < 0 || i >= myMatrix.size()) {
+    throw std::invalid_argument("Invalid row/column indices");
+  }
+  myMatrix[i][j] = x;
+}
+
+std::unordered_map<char, SquareMatrix> SquareMatrix::get_PLU() {
+  if (isAugmented) {
+    throw std::invalid_argument(
+        "Cannot find LU factorization for augmented matrix");
+  }
+
+  const int rowCount = myMatrix.size();
+  bool REF = 1;  // is matrix already in REF?
+  SquareMatrix P(get_identity(rowCount));
+  SquareMatrix L(get_identity(rowCount));
+  SquareMatrix U(myMatrix);
+
+  // string containing all the steps to be printed.
+  std::stringstream stringRep;
+
+  stringRep << "Initialise matrix U:" << endl;
+  stringRep << U.stringify() << endl;
+
+  for (int i = 0; i < rowCount; i++) {
+    // Make A[i][i] a pivot if possible
+
+    // perform row swapping if required
+    if (approxEqual(U.at(i, i), 0) && i != rowCount - 1) {
+      // get row index of row where i-th element is not a 0
+      int newPivotRow = U.get_next_pivot_row(i);
+      if (newPivotRow != i) {
+        // swap rows
+        U.swap_row(i, newPivotRow);
+        P.swap_row(i, newPivotRow);
+        stringRep << "Matrix U: Swap rows " << newPivotRow + 1 << " and "
+                  << i + 1 << endl;
+        stringRep << U.stringify() << endl;
+        stringRep << "Update Matrix P" << endl;
+        stringRep << P.stringify() << endl;
+        REF = 0;
+      }
+    }
+
+    // Scale current row to make pivot a 1
+    if (!approxEqual(U.at(i, i), 1) && !approxEqual(U.at(i, i), 0)) {
+      const double x = U.at(i, i);
+
+      stringRep << "Matrix U: R" << i + 1 << " / " << x << endl;
+      L.set_val(i, i, x);
+      U.scale_row(i, x);
+
+      stringRep << U.stringify() << endl;
+      stringRep << "Update Matrix L" << endl;
+      stringRep << L.stringify() << endl;
+
+      REF = 0;
+    }
+
+    // make current column a pivot column
+    for (int j = i + 1; j < rowCount; j++) {
+      // if element is already 0, move to next element
+      if (approxEqual(U.at(j, i), 0)) {
+        continue;
+      }
+      // output step
+      stringRep << "Matrix U: R" << j + 1 << "  - R" << i + 1;
+      if (!approxEqual(U.at(j, i), 1)) {
+        stringRep << " * " << U.at(j, i);
+      }
+      stringRep << endl;
+
+      L.set_val(j, i, U.at(j, i));
+      U.add_rows(j, i, -U.at(j, i));
+
+      stringRep << U.stringify() << endl;
+      stringRep << "Update Matrix L" << endl;
+      stringRep << L.stringify() << endl;
+
+      REF = 0;
+    }
+  }
+
+  stringRep << "Final Matrix P:" << endl;
+  stringRep << P.stringify() << endl;
+
+  stringRep << "Final Matrix L:" << endl;
+  stringRep << L.stringify() << endl;
+
+  stringRep << "Final Matrix U:" << endl;
+  stringRep << U.stringify() << endl;
+
+  calculations += stringRep.str();
+
+  std::unordered_map<char, SquareMatrix> answer = {{
+                                                       'p',
+                                                       P,
+                                                   },
+                                                   {
+                                                       'l',
+                                                       L,
+                                                   },
+                                                   {
+                                                       'u',
+                                                       U,
+                                                   }};
+  return answer;
 }

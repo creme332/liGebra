@@ -7,6 +7,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 using std::endl, std::vector, std::string;
@@ -38,6 +39,7 @@ class SquareMatrix {
 
  public:
   SquareMatrix(vector<vector<double>> initMatrix, bool _isAugmented = 0);
+  SquareMatrix();
 
   SquareMatrix operator+(SquareMatrix A);
   SquareMatrix operator-(SquareMatrix A);
@@ -71,9 +73,12 @@ class SquareMatrix {
   // Scales a row of matrix by dividing each element by k.
   void scale_row(int row, double k);
 
-  // returns element at i-th row and j-th column where i, j are zero-based
+  // Returns element at i-th row and j-th column where i, j are zero-based
   // indices.
   double at(int i, int j);
+
+  // Sets element at i-th row and j-th column to x where i, j are zero-based
+  void set_val(int i, int j, double x);
 
   // Swaps rows of matrix
   void swap_row(int row1, int row2);
@@ -105,8 +110,8 @@ class SquareMatrix {
   // Returns minor of matrix
   double get_minor(int row, int col);
 
-  // Get LU factorization
-  void get_LUF();
+  // Get LU factorization. Does not modify original matrix.
+  std::unordered_map<char, SquareMatrix> get_PLU();
 
   // Converts matrix to row echelon form using elementary row operations
   void to_ref();
