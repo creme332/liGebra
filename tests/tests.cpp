@@ -24,7 +24,7 @@ TEST_CASE("Test constructor") {
   SUBCASE("2D matrix as parameter") {
     CHECK_THROWS_AS(SquareMatrix A({{1, 1}}), std::exception);
     CHECK_THROWS_AS(SquareMatrix A({{1, 1}, {1}}), std::exception);
-    CHECK_THROWS_AS(SquareMatrix A({}), std::exception);
+    CHECK_THROWS_AS(SquareMatrix A({{}}, 0), std::exception);
     CHECK_NOTHROW(SquareMatrix A({{1, 2}, {3, 4}}));
     CHECK_NOTHROW(SquareMatrix A({{1}}));
   }
@@ -463,5 +463,70 @@ TEST_CASE("Test operator") {
     SquareMatrix A({{2, 10}, {0, 0}});
     SquareMatrix B({{0, -1}, {1, 0}});
     compare_2D_vectors((A * B).get_vec(), {{10, -2}, {0, 0}});
+  }
+  // SUBCASE("unary minus") {
+  //   SquareMatrix A({{2, 10}, {0, 0}});
+  //   compare_2D_vectors((-A).get_vec(), {{-2, -10}, {0, 0}});
+  // }
+  // SUBCASE("A mix of operations 2x2") {
+  //   SquareMatrix A({{2, 10}, {0, 0}});
+  //   SquareMatrix B({{1, -1}, {1, 0}});
+  //   SquareMatrix C({{2, 10}, {-5, 0}});
+  //   SquareMatrix D({{2, 10}, {0, 5}});
+
+  //  compare_2D_vectors((A + B * C - D).get_vec(), {{7, 10}, {2, 15}});
+  //}
+}
+
+TEST_CASE("Test PLU factorization") {
+  SUBCASE("3x3 with LU") {
+    SquareMatrix A({{2, 4, 2}, {1, -1, 3}, {-1, 8, -7}});
+    std::unordered_map<char, SquareMatrix> result = A.get_PLU();
+    // A.calc_cout();
+    compare_2D_vectors(result['p'].get_vec(),
+                       {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}});
+    compare_2D_vectors(result['l'].get_vec(),
+                       {{2, 0, 0}, {1, -3, 0}, {-1, 10, 2.0 / 3}});
+    compare_2D_vectors(result['u'].get_vec(),
+                       {{1, 2, 1}, {0, 1, -2.0 / 3}, {0, 0, 1}});
+  }
+  SUBCASE("3x3 with PLU - single swap") {
+    SquareMatrix A({{0, 4, 2}, {1, -1, 3}, {-1, 7, -7}});
+    std::unordered_map<char, SquareMatrix> result = A.get_PLU();
+    // A.calc_cout();
+    compare_2D_vectors(result['p'].get_vec(),
+                       {{0, 1, 0}, {1, 0, 0}, {0, 0, 1}});
+    compare_2D_vectors(result['l'].get_vec(),
+                       {{1, 0, 0}, {0, 4, 0}, {-1, 6, -7}});
+    compare_2D_vectors(result['u'].get_vec(),
+                       {{1, -1, 3}, {0, 1, 0.5}, {0, 0, 1}});
+  }
+
+  SUBCASE("3x3 identity - only 2 swaps") {
+    SquareMatrix A({{0, 1, 0}, {0, 0, 1}, {1, 0, 0}});
+    std::unordered_map<char, SquareMatrix> result = A.get_PLU();
+    // A.calc_cout();
+    compare_2D_vectors(result['p'].get_vec(),
+                       {{0, 0, 1}, {1, 0, 0}, {0, 1, 0}});
+    compare_2D_vectors(result['l'].get_vec(),
+                       {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}});
+    compare_2D_vectors(result['u'].get_vec(),
+                       {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}});
+  }
+
+  SUBCASE("4x4 with PLU - row ops + swaps") {
+    SquareMatrix A(
+        {{1, 3, 1, 2}, {2, 6, 2, -3}, {-2, -5, -2, 1}, {1, 2, 4, 3}});
+    std::unordered_map<char, SquareMatrix> result = A.get_PLU();
+    A.calc_cout();
+    compare_2D_vectors(
+        result['p'].get_vec(),
+        {{1, 0, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}, {0, 1, 0, 0}});
+    compare_2D_vectors(
+        result['l'].get_vec(),
+        {{1, 0, 0, 0}, {-2, 1, 0, 0}, {1, -1, 3, 0}, {2, 0, 0, -7}});
+    compare_2D_vectors(
+        result['u'].get_vec(),
+        {{1, 3, 1, 2}, {0, 1, 0, 5}, {0, 0, 1, 2}, {0, 0, 0, 1}});
   }
 }
