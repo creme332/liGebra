@@ -837,9 +837,22 @@ std::unordered_map<char, SquareMatrix> SquareMatrix::get_PLU() {
         // swap rows
         U.swap_row(i, newPivotRow);
         P.swap_row(i, newPivotRow);
+
+        assert(i >= 0 && newPivotRow >= 0);
+
+        // perform swapping in L
+        for (int k = 0; k < std::min(i, newPivotRow); k++) {
+          double const a = L.at(i, k);
+          L.set_val(i, k, L.at(newPivotRow, k));
+          L.set_val(newPivotRow, k, a);
+        }
+
+        // output
         stringRep << "Matrix U: Swap rows " << newPivotRow + 1 << " and "
                   << i + 1 << endl;
         stringRep << U.stringify() << endl;
+        stringRep << "Update Matrix L" << endl;
+        stringRep << L.stringify() << endl;
         stringRep << "Update Matrix P" << endl;
         stringRep << P.stringify() << endl;
         REF = 0;
