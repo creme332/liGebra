@@ -518,7 +518,7 @@ TEST_CASE("Test PLU factorization") {
     SquareMatrix A(
         {{1, 3, 1, 2}, {2, 6, 2, -3}, {-2, -5, -2, 1}, {1, 2, 4, 3}});
     std::unordered_map<char, SquareMatrix> result = A.get_PLU();
-    A.calc_cout();
+    //A.calc_cout();
     compare_2D_vectors(
         result['p'].get_vec(),
         {{1, 0, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}, {0, 1, 0, 0}});
@@ -528,5 +528,20 @@ TEST_CASE("Test PLU factorization") {
     compare_2D_vectors(
         result['u'].get_vec(),
         {{1, 3, 1, 2}, {0, 1, 0, 5}, {0, 0, 1, 2}, {0, 0, 0, 1}});
+  }
+
+  SUBCASE("4x4 with PLU - row ops + 1 swap") {
+    SquareMatrix A({{0, 4, 2, 1}, {1, -1, 3, 2}, {-1, 7, -7, 3}, {2, 0, 0, 4}});
+    std::unordered_map<char, SquareMatrix> result = A.get_PLU();
+    A.calc_cout();
+    compare_2D_vectors(
+        result['p'].get_vec(),
+        {{0, 1, 0, 0}, {1, 0, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}});
+    compare_2D_vectors(
+        result['l'].get_vec(),
+        {{1, 0, 0, 0}, {0, 4, 0, 0}, {-1, 6, -7, 0}, {2, 2, -7, -4}});
+    compare_2D_vectors(
+        result['u'].get_vec(),
+        {{1, -1, 3, 2}, {0, 1, 0.5, 0.25}, {0, 0, 1, -0.5}, {0, 0, 0, 1}});
   }
 }
