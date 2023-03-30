@@ -923,3 +923,96 @@ std::unordered_map<char, SquareMatrix> SquareMatrix::get_PLU() {
                                                    }};
   return answer;
 }
+
+vector<double> SquareMatrix::solve_plu() {
+  if (!isAugmented) {
+    throw std::invalid_argument("Matrix must be in augmented form");
+  }
+
+  std::stringstream stringRep;
+  const int rowCount = myMatrix.size();
+  stringRep << "Solving AX = B" << endl;
+
+  // extract coefficient matrix A from myMatrix
+  SquareMatrix A(vector<vector<double>>(rowCount, vector<double>(rowCount, 0)));
+  for (int i = 0; i < rowCount; i++) {
+    for (int j = 0; j < rowCount; j++) {
+      A.set_val(i, j, myMatrix[i][j]);
+    }
+  }
+  stringRep << "Matrix A" << endl << A.stringify() << endl;
+
+  // extract column vector B from myMatrix
+  stringRep << "Matrix B = [";
+  vector<double> B(rowCount, 0);
+  for (int i = 0; i < rowCount; i++) {
+    B[i] = myMatrix[i][rowCount];
+    stringRep << B[i];
+    if (i != rowCount - 1)
+      stringRep << ", ";
+  }
+  stringRep << "]" << endl << endl;
+
+  // get plu decomposition of A
+  std::unordered_map<char, SquareMatrix> result = A.get_PLU();
+  vector<vector<double>> P = result['p'].get_vec();
+  vector<vector<double>> L = result['l'].get_vec();
+  vector<vector<double>> U = result['u'].get_vec();
+  stringRep << "Calculate PLU decomposition of A" << endl;
+  stringRep << "Matrix P" << endl;
+  stringRep << SquareMatrix(P).stringify() << endl;
+  stringRep << "Matrix L" << endl;
+  stringRep << SquareMatrix(L).stringify() << endl;
+  stringRep << "Matrix U" << endl;
+  stringRep << SquareMatrix(U).stringify() << endl;
+
+  // calculate PB
+  stringRep << "Matrix PB = [";
+  vector<double> PB(rowCount, 0);
+
+  for (int i = 0; i < rowCount; i++) {
+    for (int j = 0; j < rowCount; j++) {
+      PB[i] += P[i][j] * B[j];
+    }
+    stringRep << PB[i];
+    if (i != rowCount - 1)
+      stringRep << ", ";
+  }
+  stringRep << "]" << endl << endl;
+
+  //  forward substitution : solve LZ = PB for Z
+  stringRep << "Solve LZ = PB for Z" << endl;
+  stringRep << "Matrix Z = [";
+  vector<double> Z(rowCount, 0);
+
+  for (int i = 0; i < rowCount; i++) {
+    Z[i] = PB[i];
+    for (int j = 0; j < i; j++) {
+      Z[i] -= L[i][j] * Z[j];
+    }
+    Z[i] /= L[i][i];
+    stringRep << Z[i];
+    if (i != rowCount - 1)
+      stringRep << ", ";
+  }
+  stringRep << "]" << endl << endl;
+
+  //  backward substitution : solve UX = Z for X
+  stringRep << "Solve UX = Z for X" << endl;
+  stringRep << "Matrix X = [";
+  vector<double> X(rowCount, 0);
+  for (int i = rowCount - 1; i >= 0; i--) {
+    X[i] = Z[i];
+    for (int j = rowCount - 1; j, j > i; j--) {
+      X[i] -= U[i][j] * X[j];
+    }
+    X[i] /= U[i][i];
+    stringRep << X[i];
+    if (i != 0)
+      stringRep << ", ";
+  }
+  stringRep << "]" << endl;
+
+  calculations += stringRep.str();
+  return X;
+}
