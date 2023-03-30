@@ -511,7 +511,7 @@ TEST_CASE("Test PLU factorization") {
   SUBCASE("3x3 identity - only 2 swaps") {
     SquareMatrix A({{0, 1, 0}, {0, 0, 1}, {1, 0, 0}});
     std::unordered_map<char, SquareMatrix> result = A.get_PLU();
-    A.calc_cout();
+    //A.calc_cout();
     compare_2D_vectors(result['p'].get_vec(),
                        {{0, 0, 1}, {1, 0, 0}, {0, 1, 0}});
     compare_2D_vectors(result['l'].get_vec(),
@@ -545,7 +545,7 @@ TEST_CASE("Test PLU factorization") {
   SUBCASE("4x4 with PLU - row ops + 1 swap") {
     SquareMatrix A({{0, 4, 2, 1}, {1, -1, 3, 2}, {-1, 7, -7, 3}, {2, 0, 0, 4}});
     std::unordered_map<char, SquareMatrix> result = A.get_PLU();
-    A.calc_cout();
+    //A.calc_cout();
     compare_2D_vectors(
         result['p'].get_vec(),
         {{0, 1, 0, 0}, {1, 0, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}});
@@ -558,5 +558,45 @@ TEST_CASE("Test PLU factorization") {
 
     compare_2D_vectors((result['p'] * A).get_vec(),
                        (result['l'] * result['u']).get_vec());
+  }
+}
+
+TEST_CASE("Test solve_plu()") {
+  SUBCASE("3-var system with infinite solutions") {
+    SquareMatrix A({{2, 6, -1, 85}, {2, 6, -1, 15}, {1, 1, 54, 110}}, true);
+     CHECK_THROWS_AS(A.solve_cramer(), std::exception);
+  }
+
+  SUBCASE("non-augmented matrix") {
+    SquareMatrix A({{1, 1, 1, 1}, {0, 2, -6, 2}, {3, 6, -5, 4}, {0, 2, -6, 2}},
+                   false);
+    CHECK_THROWS_AS(A.solve_plu(), std::exception);
+  }
+
+  SUBCASE("2-var system with unique solutions") {
+    SquareMatrix A({{1, 1, 2}, {0, 2, 2}}, true);
+    vector<double> solutions = A.solve_plu();
+    A.calc_cout();
+    compare_1D_vector(solutions, {1, 1});
+  }
+
+  SUBCASE("3-var system with unique solutions") {
+    SquareMatrix A({{1, 1, 1, 1}, {0, 2, -6, 2}, {3, 6, -5, 4}}, true);
+    vector<double> solutions = A.solve_plu();
+    compare_1D_vector(solutions, {8, -5, -2});
+  }
+
+  SUBCASE("4-var system with unique solutions") {
+    SquareMatrix A(
+        {
+            {1, 1, 1, 1, 2},
+            {0, 2, -6, 2, 4},
+            {3, 6, -5, 4, 10},
+            {5, 1, -5, 4, 5},
+        },
+        true);
+    vector<double> solutions = A.solve_plu();
+    compare_1D_vector(solutions, {0, 1, 0, 1});
+    // A.calc_cout();
   }
 }
