@@ -97,7 +97,7 @@ class SquareMatrix {
   // method and returns the result.
   vector<vector<double>> gauss_inv();
 
-  // Outputs approximations of a system of equations using either Gauss-Jacobi
+  // Outputs approximations of a system of equations Ax = B using either Gauss-Jacobi
   // or Gauss-Seidel method
   vector<vector<double>> solve_approx(const bool useSeidelMethod,
                                       vector<double> initial_approx,
@@ -119,8 +119,11 @@ class SquareMatrix {
   // Converts matrix to reduced row echelon form using row operations
   void to_rref();
 
-  // Solves a system of equation using cramers rule.
+  // Solves a system of equation Ax = B using cramers rule.
   vector<double> solve_cramer();
+
+  // Solves a system of equation Ax = B using LU decomposition.
+  vector<double> solve_plu();
 
   // Returns a vector of eigenvalues of matrix
   vector<double> eig_val();
