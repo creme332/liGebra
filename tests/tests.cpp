@@ -164,25 +164,6 @@ TEST_CASE("Test Gauss-Jacobi and Gauss-Seidel") {
   }
 }
 
-TEST_CASE("Testing") {
-  SUBCASE("2015-1-sp qu 1b") {
-    SquareMatrix A({{52, 0, 38, 24}, {-1, 19, 0, 58}, {-2, 3, 8, 27}}, true);
-    A.solve_approx(1, {0, 0, 0}, 10, 2);
-    // A.calc_cout();
-  }
-  SUBCASE("2015-1-sp qu 1b") {
-    SquareMatrix A(
-        {
-            {24, 14, 0, 38},
-            {0, -45, -10, -55},
-            {0, -5, -10, -15},
-        },
-        true);
-    A.solve_approx(0, {0, 0, 0}, 10, 4);
-    // A.calc_cout();
-  }
-}
-
 TEST_CASE("Tranpose matrix") {
   SUBCASE("4x4 matrix") {
     SquareMatrix A({{5, 6, -1}, {1, 4, 2}, {1, -2, 5}});
