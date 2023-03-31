@@ -12,6 +12,8 @@ jobs:
       - name: checkout repo content
         uses: actions/checkout@v3
 
+      - name: compile program
+        run: g++ main.cpp tests/tests.cpp src/SquareMatrix.cpp
       - name: run tests
-        run: g++ main.cpp tests/tests.cpp src/SquareMatrix.cpp -Wall && ./a.out
+        run: ./a.out
  
