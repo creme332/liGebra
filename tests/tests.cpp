@@ -4,6 +4,16 @@
 void compare_1D_vector(vector<double> a,
                        vector<double> b,
                        const double tolerance = 0.001) {
+  string str = "";
+  for (auto i : a)
+    str += std::to_string(i) + ", ";
+  INFO("Array 1:", str);
+
+  string str2 = "";
+  for (auto i : b)
+    str2 += std::to_string(i) + ", ";
+  INFO("Array 2: ", str2);
+
   // Checks if two vectors have the same size and same elements
   CHECK_EQ(a.size(), b.size());
 
@@ -26,7 +36,7 @@ TEST_CASE("Test constructor") {
     CHECK_THROWS_AS(SquareMatrix A({{1, 1}, {1}}), std::exception);
     CHECK_THROWS_AS(SquareMatrix A({{}}, 0), std::exception);
     CHECK_NOTHROW(SquareMatrix A({{1, 2}, {3, 4}}));
-    //CHECK_NOTHROW(SquareMatrix A({{1}}));
+    // CHECK_NOTHROW(SquareMatrix A({{1}}));
   }
   SUBCASE("Augmented matrix as parameter") {
     CHECK_NOTHROW(SquareMatrix A({{1, 2, 3}, {3, 4, 5}}, 1));
@@ -35,10 +45,10 @@ TEST_CASE("Test constructor") {
 }
 
 TEST_CASE("Test determinant") {
-  //SUBCASE("1x1 matrix") {
-  //  SquareMatrix A({{1}});
-  //  CHECK_EQ(A.det(), 1);
-  //}
+  // SUBCASE("1x1 matrix") {
+  //   SquareMatrix A({{1}});
+  //   CHECK_EQ(A.det(), 1);
+  // }
   SUBCASE("2x2 identity matrix") {
     SquareMatrix A({{1, 0}, {0, 1}});
     CHECK_EQ(A.det(), 1);
@@ -325,26 +335,6 @@ TEST_CASE("Test reduced row echelon form") {
 }
 
 TEST_CASE("Test to_diag()") {
-  // TODO: update valid to make it work for non-augmented matrices
-
-  // Returns true if matrix can be used with Gauss-seidel/Gauss-Jacobi
-  auto valid = [](vector<vector<double>> augmentedMatrix) {
-    for (int row = 0; row < augmentedMatrix.size(); row++) {
-      // count number of non-zero elements in this row excluding augmented
-      // column
-      int c = 0;
-      for (int col = 0; col < augmentedMatrix[row].size() - 1; col++) {
-        if (augmentedMatrix[row][col] != 0) {
-          c++;
-        };
-        if (c > 1)
-          break;
-      }
-      if (c <= 1)
-        return false;
-    }
-    return true;
-  };
   SUBCASE("3-var system with circles on each row (Example 1)") {
     SquareMatrix A({{2, 6, -1, 85}, {6, 15, 2, 72}, {1, 1, 54, 110}}, true);
     A.to_diag(true);
@@ -474,6 +464,21 @@ TEST_CASE("Test PLU factorization") {
     compare_2D_vectors((result['p'] * A).get_vec(),
                        (result['l'] * result['u']).get_vec());
   }
+
+  SUBCASE("3x3 with determinant 0") {
+    SquareMatrix A({{1, 2, 3}, {2, 4, 6}, {6, 5, 4}});
+    std::unordered_map<char, SquareMatrix> result = A.get_PLU();
+    A.calc_cout();
+    compare_2D_vectors(result['p'].get_vec(),
+                       {{1, 0, 0}, {0, 0, 1}, {0, 1, 0}});
+    compare_2D_vectors(result['l'].get_vec(),
+                       {{1, 0, 0}, {6, -7, 0}, {2, 0, 1}});
+    compare_2D_vectors(result['u'].get_vec(),
+                       {{1, 2, 3}, {0, 1, 2}, {0, 0, 0}});
+    compare_2D_vectors((result['p'] * A).get_vec(),
+                       (result['l'] * result['u']).get_vec());
+  }
+
   SUBCASE("3x3 with PLU - single swap") {
     SquareMatrix A({{0, 4, 2}, {1, -1, 3}, {-1, 7, -7}});
     std::unordered_map<char, SquareMatrix> result = A.get_PLU();
@@ -492,7 +497,7 @@ TEST_CASE("Test PLU factorization") {
   SUBCASE("3x3 identity - only 2 swaps") {
     SquareMatrix A({{0, 1, 0}, {0, 0, 1}, {1, 0, 0}});
     std::unordered_map<char, SquareMatrix> result = A.get_PLU();
-    //A.calc_cout();
+    // A.calc_cout();
     compare_2D_vectors(result['p'].get_vec(),
                        {{0, 0, 1}, {1, 0, 0}, {0, 1, 0}});
     compare_2D_vectors(result['l'].get_vec(),
@@ -526,7 +531,7 @@ TEST_CASE("Test PLU factorization") {
   SUBCASE("4x4 with PLU - row ops + 1 swap") {
     SquareMatrix A({{0, 4, 2, 1}, {1, -1, 3, 2}, {-1, 7, -7, 3}, {2, 0, 0, 4}});
     std::unordered_map<char, SquareMatrix> result = A.get_PLU();
-    //A.calc_cout();
+    // A.calc_cout();
     compare_2D_vectors(
         result['p'].get_vec(),
         {{0, 1, 0, 0}, {1, 0, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}});
@@ -545,7 +550,7 @@ TEST_CASE("Test PLU factorization") {
 TEST_CASE("Test solve_plu()") {
   SUBCASE("3-var system with infinite solutions") {
     SquareMatrix A({{2, 6, -1, 85}, {2, 6, -1, 15}, {1, 1, 54, 110}}, true);
-     CHECK_THROWS_AS(A.solve_cramer(), std::exception);
+    CHECK_THROWS_AS(A.solve_cramer(), std::exception);
   }
 
   SUBCASE("non-augmented matrix") {
@@ -557,7 +562,7 @@ TEST_CASE("Test solve_plu()") {
   SUBCASE("2-var system with unique solutions") {
     SquareMatrix A({{1, 1, 2}, {0, 2, 2}}, true);
     vector<double> solutions = A.solve_plu();
-    A.calc_cout();
+    // A.calc_cout();
     compare_1D_vector(solutions, {1, 1});
   }
 
