@@ -1,28 +1,31 @@
 # liGebra
-A C++17 linear algebra library built for educational purposes. It uses the command line interface to output step-by-step calculations.
+![Badge for test workflow](https://github.com/creme332/liGebra/actions/workflows/test.yml/badge.svg)
+
+A basic C++17 linear algebra library built for educational purposes. It uses the command line interface to output step-by-step calculations.
 
 I created this to experiment with OOP and `doctest`.
 
 # Features
 - Basic matrix operations (addition, subtraction, multiplication, transpose).
-- Inverse a matrix.
+- Inverse of a matrix.
 	- Gauss-Jordan elimination method.
 	- Leibniz method.
-- Determinant calculator.
-	- Laplace expansion method.
-	- Gauss-Jordan elimination method.
-- Rank of matrix calculator.
+- Calculates matrix properties.
+	- Determinant.
+		- Laplace expansion method.
+		- Gauss-Jordan elimination method.
+	- Rank of matrix.
+	- Eigenvectors and eigenvalues.
 - Convert matrix to row echelon form and reduced row echelon form.
-- Make a matrix diagonally dominant through row/column exchanges.
+- Make a matrix diagonally dominant using elementary row operations.
 - LU/PLU factorization (crouts method) with partial pivoting.
-- Solving a system of linear equations.
+- Solving system of linear equations.
 	- Gauss-Jordan elimination method.
 	- Cramers rule method.
 	- LU/PLU decomposition method with partial pivoting.
-- Iterative methods of solving a system of linear equations.
-	- Gauss-Jacobi method.
-	- Gauss-Seidel method.
-- Eigenvectors and eigenvalues calculator. (*)
+	- Iterative methods
+		- Gauss-Jacobi method.
+		- Gauss-Seidel method.
 
 # Installation
 To run this program, you will need to have a C++ compiler that supports C++17 installed on your machine.
@@ -31,13 +34,12 @@ Once you have a compiler installed, you can download the source code for this pr
 
 # Usage
 
+### `solve_cramer`
+
 # To-do
 add endl in ref row echelong
-add tests lu factorization
-
 gauss-jacoi and seidel resetting calculation string
 review ddm algorithm
-strassen algorithm
 
 - [ ] Add examples folder 
 - [ ] Add bodmas support for matrix operations
@@ -61,3 +63,4 @@ Run `tests.cpp` file in the `tests` folder.
 - No support for complex numbers.
 - Data type of numbers is limited to `double`.
 - Supports only square matrices.
+- Matrix operations do not follow BODMAS.
