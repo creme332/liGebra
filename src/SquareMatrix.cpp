@@ -131,7 +131,6 @@ vector<vector<double>> SquareMatrix::solve_approx(
   }
   const char separator = ' ';
   const int nameWidth = 15;
-  const int numWidth = 10;
 
   // output table header
   stringRep << std::left << std::setw(nameWidth) << std::setfill(separator)
@@ -163,7 +162,6 @@ string SquareMatrix::stringify(int dp) {
   const char separator = '|';
   const char spaceChar = ' ';
   const int nameWidth = 10;
-  const int numWidth = 6;
   const int rowCount = myMatrix.size();
 
   for (int row = 0; row < rowCount; row++) {
@@ -1003,7 +1001,7 @@ vector<double> SquareMatrix::solve_plu() {
   vector<double> X(rowCount, 0);
   for (int i = rowCount - 1; i >= 0; i--) {
     X[i] = Z[i];
-    for (int j = rowCount - 1; j, j > i; j--) {
+    for (int j = rowCount - 1; j > i; j--) {
       X[i] -= U[i][j] * X[j];
     }
     X[i] /= U[i][i];
