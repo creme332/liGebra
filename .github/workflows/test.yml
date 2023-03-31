@@ -13,5 +13,5 @@ jobs:
         uses: actions/checkout@v3
 
       - name: run tests
-        run: g++ -o main.exe main.cpp
+        run: g++ main.cpp tests/tests.cpp src/SquareMatrix.cpp -Wall && ./a.out
  
