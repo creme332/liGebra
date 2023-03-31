@@ -1,4 +1,4 @@
-#include "../src//SquareMatrix.h"
+#include "../src/SquareMatrix.h"
 #include "doctest.h"
 
 void compare_1D_vector(vector<double> a,
