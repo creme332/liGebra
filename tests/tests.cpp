@@ -55,7 +55,7 @@ TEST_CASE("Test determinant") {
   }
   SUBCASE("2x2 zero matrix") {
     SquareMatrix A({{0, 0}, {0, 0}});
-    CHECK_EQ(A.det(), 10);
+    CHECK_EQ(A.det(), 0);
   }
   SUBCASE("3x3 non-singular matrix") {
     SquareMatrix A({{25, 125, 35}, {3, 4, 1}, {0, 1, 6}});
@@ -468,7 +468,7 @@ TEST_CASE("Test PLU factorization") {
   SUBCASE("3x3 with determinant 0") {
     SquareMatrix A({{1, 2, 3}, {2, 4, 6}, {6, 5, 4}});
     std::unordered_map<char, SquareMatrix> result = A.get_PLU();
-    A.calc_cout();
+    // A.calc_cout();
     compare_2D_vectors(result['p'].get_vec(),
                        {{1, 0, 0}, {0, 0, 1}, {0, 1, 0}});
     compare_2D_vectors(result['l'].get_vec(),
