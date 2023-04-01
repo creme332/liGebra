@@ -17,7 +17,7 @@ void compare_1D_vector(vector<double> a,
   // Checks if two vectors have the same size and same elements
   CHECK_EQ(a.size(), b.size());
 
-  for (int j = 0; j < a.size(); j++) {
+  for (int j = 0; j < int(a.size()); j++) {
     REQUIRE(a[j] - b[j] == doctest::Approx(0).epsilon(tolerance));
   }
 }
@@ -25,7 +25,7 @@ void compare_2D_vectors(vector<vector<double>> a,
                         vector<vector<double>> b,
                         const double tolerance = 0.001) {
   // allow for a 0.1% error
-  for (int i = 0; i < a.size(); i++) {
+  for (int i = 0; i < int(a.size()); i++) {
     compare_1D_vector(a[i], b[i]);
   }
 }
