@@ -28,9 +28,9 @@ bool SquareMatrix::isValid(vector<vector<double>> initMatrix,
 
   for (int i = 0; i < rowCount; i++) {
     if (_isAugmented) {
-      if (initMatrix[i].size() - 1 != colCount - 1)
+      if (int(initMatrix[i].size()) - 1 != colCount - 1)
         return 0;
-    } else if (initMatrix[i].size() != rowCount) {
+    } else if (int(initMatrix[i].size()) != rowCount) {
       return 0;
     }
   }
@@ -38,7 +38,8 @@ bool SquareMatrix::isValid(vector<vector<double>> initMatrix,
 }
 
 double SquareMatrix::at(int row, int col) {
-  if (row < 0 || col < 0 || row >= myMatrix.size() || col >= myMatrix[0].size())
+  if (row < 0 || col < 0 || row >= int(myMatrix.size()) ||
+      col >= int(myMatrix[0].size()))
     throw std::invalid_argument("Matrix must augmented.");
 
   return myMatrix[row][col];
@@ -86,7 +87,7 @@ vector<vector<double>> SquareMatrix::solve_approx(
 
   const int vars = myMatrix.size();
 
-  if (initial_approx.size() != vars) {
+  if (int(initial_approx.size()) != vars) {
     throw std::invalid_argument(
         "Size of approximation array must be equal to number of variables");
   }
@@ -165,7 +166,7 @@ string SquareMatrix::stringify(int dp) {
   const int rowCount = myMatrix.size();
 
   for (int row = 0; row < rowCount; row++) {
-    for (int col = 0; col < myMatrix[row].size(); col++) {
+    for (int col = 0; col < int(myMatrix[row].size()); col++) {
       stringRep << std::left << std::setw(nameWidth) << std::setfill(spaceChar)
                 << std::fixed << std::setprecision(dp) << myMatrix[row][col];
       if (col == rowCount - 1 && isAugmented) {
@@ -187,19 +188,21 @@ void SquareMatrix::add_rows(int row1, int row2, double k) {
 }
 
 void SquareMatrix::scale_row(int row, double k) {
-  for (int i = 0; i < myMatrix[row].size(); i++) {
-    if (!approxEqual(myMatrix[row][i], 0))
-      myMatrix[row][i] /= k;
+  if (approxEqual(k, 0))
+    throw std::invalid_argument("Cannot divide by 0");
+  for (int i = 0; i < int(myMatrix[row].size()); i++) {
+    myMatrix[row][i] /= k;
   }
 }
 
 bool SquareMatrix::approxEqual(double a, double b) {
-  return abs(a - b) < 1e-9;
+  const double EPSILON = 1e-9;
+  return fabs(a - b) < EPSILON;
 }
 
 void SquareMatrix::swap_row(int row1, int row2) {
-  if (row1 < 0 || row2 < 0 || row1 >= myMatrix.size() ||
-      row2 >= myMatrix.size()) {
+  if (row1 < 0 || row2 < 0 || row1 >= int(myMatrix.size()) ||
+      row2 >= int(myMatrix.size())) {
     throw std::invalid_argument("Invalid row indices");
   }
   std::swap(myMatrix[row1], myMatrix[row2]);
@@ -280,7 +283,7 @@ vector<vector<double>> SquareMatrix::leb_inv() {
   }
 
   stringRep << "Inverse matrix: \n";
-  for (int i = 0; i < myMatrix.size(); i++)
+  for (int i = 0; i < int(myMatrix.size()); i++)
     cof.scale_row(i, determinant);
   stringRep << cof.stringify();
   myMatrix = cof.get_vec();
@@ -323,7 +326,7 @@ vector<vector<double>> SquareMatrix::get_identity(int n) {
 }
 
 int SquareMatrix::get_next_pivot_row(int col) {
-  for (int i = col; i < myMatrix.size(); i++) {
+  for (int i = col; i < int(myMatrix.size()); i++) {
     if (!approxEqual(myMatrix[i][col], 0))
       return i;
   }
@@ -335,7 +338,7 @@ void SquareMatrix::calc_cout() {
 }
 
 void SquareMatrix::validate(int i, string msg) {
-  if (i < 0 || i >= myMatrix.size()) {
+  if (i < 0 || i >= int(myMatrix.size())) {
     throw std::invalid_argument(msg);
   }
 }
@@ -344,9 +347,9 @@ double SquareMatrix::get_minor(int row, int col) {
   validate(row, "Cannot calculate minor. Invalid value of row");
   validate(col, "Cannot calculate minor. Invalid value of col");
   vector<vector<double>> minor_matrix;
-  for (int i = 0; i < myMatrix.size(); i++) {
+  for (int i = 0; i < int(myMatrix.size()); i++) {
     vector<double> b;
-    for (int j = 0; j < myMatrix.size(); j++) {
+    for (int j = 0; j < int(myMatrix.size()); j++) {
       if (i != row && j != col) {
         b.push_back(myMatrix[i][j]);
       }
@@ -374,7 +377,7 @@ SquareMatrix SquareMatrix::get_cofactor() {
 }
 
 void SquareMatrix::transpose() {
-  for (int i = 0; i < myMatrix.size(); i++) {
+  for (int i = 0; i < int(myMatrix.size()); i++) {
     for (int j = 0; j < i; j++) {
       std::swap(myMatrix[i][j], myMatrix[j][i]);
     }
@@ -451,8 +454,7 @@ void SquareMatrix::to_ref() {
   // if matrix was already in REF
   if (REF) {
     stringRep.str("");
-    stringRep << "Matrix is already in Row Echelon Form" << endl
-              << stringify() << endl;
+    stringRep << "Matrix is in Row Echelon Form" << endl << stringify() << endl;
   }
 
   calculations += stringRep.str();
@@ -800,7 +802,7 @@ std::string SquareMatrix::get_calc() {
 }
 
 void SquareMatrix::set_val(int i, int j, double x) {
-  if (i < 0 || j < 0 || i >= myMatrix.size()) {
+  if (i < 0 || j < 0 || i >= int(myMatrix.size())) {
     throw std::invalid_argument("Invalid row/column indices");
   }
   myMatrix[i][j] = x;
@@ -813,7 +815,6 @@ std::unordered_map<char, SquareMatrix> SquareMatrix::get_PLU() {
   }
 
   const int rowCount = myMatrix.size();
-  bool REF = 1;  // is matrix already in REF?
   SquareMatrix P(get_identity(rowCount));
   SquareMatrix L(get_identity(rowCount));
   SquareMatrix U(myMatrix);
@@ -853,7 +854,6 @@ std::unordered_map<char, SquareMatrix> SquareMatrix::get_PLU() {
         stringRep << L.stringify() << endl;
         stringRep << "Update Matrix P" << endl;
         stringRep << P.stringify() << endl;
-        REF = 0;
       }
     }
 
@@ -868,8 +868,6 @@ std::unordered_map<char, SquareMatrix> SquareMatrix::get_PLU() {
       stringRep << U.stringify() << endl;
       stringRep << "Update Matrix L" << endl;
       stringRep << L.stringify() << endl;
-
-      REF = 0;
     }
 
     // make current column a pivot column
@@ -891,8 +889,6 @@ std::unordered_map<char, SquareMatrix> SquareMatrix::get_PLU() {
       stringRep << U.stringify() << endl;
       stringRep << "Update Matrix L" << endl;
       stringRep << L.stringify() << endl;
-
-      REF = 0;
     }
   }
 
