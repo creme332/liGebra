@@ -55,7 +55,7 @@ TEST_CASE("Test determinant") {
   }
   SUBCASE("2x2 zero matrix") {
     SquareMatrix A({{0, 0}, {0, 0}});
-    CHECK_EQ(A.det(), 0);
+    CHECK_EQ(A.det(), 10);
   }
   SUBCASE("3x3 non-singular matrix") {
     SquareMatrix A({{25, 125, 35}, {3, 4, 1}, {0, 1, 6}});
