@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
 
   if (test_result == 1)
     throw std::runtime_error("Test failed");
-  std::cout << test_result << std::endl;
+
   if (context.shouldExit())  // honor query flags and --exit
     return test_result;
 
