@@ -6,10 +6,18 @@
 int main(int argc, char** argv) {
   doctest::Context context(argc, argv);
 
+  context.setOption("abort-after",
+                    1);  // stop test execution after 1 failed assertion
+  context.setOption("no-breaks",
+                    true);  // don't break in the debugger when assertions fail
+
   int test_result = context.run();  // run queries, or run tests unless --no-run
 
+  if (test_result == 1)
+    throw std::runtime_error("Test failed");
+  std::cout << test_result << std::endl;
   if (context.shouldExit())  // honor query flags and --exit
     return test_result;
 
-  std::cout << "hello world";
+  return test_result;
 }
