@@ -437,10 +437,10 @@ TEST_CASE("Test operator") {
     SquareMatrix B({{0, -1}, {1, 0}});
     compare_2D_vectors((A * B).get_vec(), {{10, -2}, {0, 0}});
   }
-  // SUBCASE("unary minus") {
-  //   SquareMatrix A({{2, 10}, {0, 0}});
-  //   compare_2D_vectors((-A).get_vec(), {{-2, -10}, {0, 0}});
-  // }
+  SUBCASE("unary minus") {
+    SquareMatrix A({{2, 10}, {0, 0}});
+    compare_2D_vectors((-A).get_vec(), {{-2, -10}, {0, 0}});
+  }
   // SUBCASE("A mix of operations 2x2") {
   //   SquareMatrix A({{2, 10}, {0, 0}});
   //   SquareMatrix B({{1, -1}, {1, 0}});
