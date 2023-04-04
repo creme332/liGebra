@@ -43,6 +43,7 @@ class SquareMatrix {
 
   SquareMatrix operator+(SquareMatrix A);
   SquareMatrix operator-(SquareMatrix A);
+  SquareMatrix operator-();
   SquareMatrix operator*(SquareMatrix A);
 
   // Rotates matrix 90deg clockwise.
@@ -97,8 +98,8 @@ class SquareMatrix {
   // method and returns the result.
   vector<vector<double>> gauss_inv();
 
-  // Outputs approximations of a system of equations Ax = B using either Gauss-Jacobi
-  // or Gauss-Seidel method
+  // Outputs approximations of a system of equations Ax = B using either
+  // Gauss-Jacobi or Gauss-Seidel method
   vector<vector<double>> solve_approx(const bool useSeidelMethod,
                                       vector<double> initial_approx,
                                       int iterations = 5,

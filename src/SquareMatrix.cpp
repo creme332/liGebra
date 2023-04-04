@@ -773,6 +773,19 @@ SquareMatrix SquareMatrix::operator-(SquareMatrix otherMatrix) {
   return SquareMatrix(result, isAugmented);
 }
 
+SquareMatrix SquareMatrix::operator-() {
+  const int row_size = myMatrix.size();
+  const int col_size = myMatrix[0].size();
+  vector<vector<double>> result(row_size, vector<double>(col_size, 0));
+
+  for (int i = 0; i < row_size; i++) {
+    for (int j = 0; j < col_size; j++) {
+      result[i][j] = -myMatrix[i][j];
+    }
+  }
+  return SquareMatrix(result, isAugmented);
+}
+
 SquareMatrix SquareMatrix::operator*(SquareMatrix otherMatrix) {
   if (isAugmented || otherMatrix.isAugmented) {
     throw std::invalid_argument("Cannot multiply augmented matrices");
