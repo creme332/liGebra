@@ -36,7 +36,8 @@ TEST_CASE("Test constructor") {
     CHECK_THROWS_AS(SquareMatrix A({{1, 1}, {1}}), std::exception);
     CHECK_THROWS_AS(SquareMatrix A({{}}, 0), std::exception);
     CHECK_NOTHROW(SquareMatrix A({{1, 2}, {3, 4}}));
-    // CHECK_NOTHROW(SquareMatrix A({{1}}));
+    vector<vector<double>> unitVector = {{1}};
+    CHECK_NOTHROW(SquareMatrix A(unitVector));
   }
   SUBCASE("Augmented matrix as parameter") {
     CHECK_NOTHROW(SquareMatrix A({{1, 2, 3}, {3, 4, 5}}, 1));
@@ -45,10 +46,11 @@ TEST_CASE("Test constructor") {
 }
 
 TEST_CASE("Test determinant") {
-  // SUBCASE("1x1 matrix") {
-  //   SquareMatrix A({{1}});
-  //   CHECK_EQ(A.det(), 1);
-  // }
+  SUBCASE("1x1 matrix") {
+    vector<vector<double>> unitVector = {{1}};
+    SquareMatrix A(unitVector);
+    CHECK_EQ(A.det(), 1);
+  }
   SUBCASE("2x2 identity matrix") {
     SquareMatrix A({{1, 0}, {0, 1}});
     CHECK_EQ(A.det(), 1);
