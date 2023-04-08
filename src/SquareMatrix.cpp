@@ -154,7 +154,7 @@ vector<vector<double>> SquareMatrix::solve_approx(
     stringRep << endl;
   }
 
-  calculations = stringRep.str();
+  calculations += stringRep.str();
   return table;
 }
 
@@ -278,7 +278,7 @@ vector<vector<double>> SquareMatrix::leb_inv() {
 
   if (determinant == 0) {
     stringRep << "Matrix has no inverse\n";
-    calculations = stringRep.str();
+    calculations += stringRep.str();
     return {{}};
   }
 
@@ -287,7 +287,7 @@ vector<vector<double>> SquareMatrix::leb_inv() {
     cof.scale_row(i, determinant);
   stringRep << cof.stringify();
   myMatrix = cof.get_vec();
-  calculations = stringRep.str();
+  calculations += stringRep.str();
 
   return myMatrix;
 }
