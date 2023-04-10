@@ -77,6 +77,70 @@ TEST_CASE("Test determinant") {
   }
 }
 
+TEST_CASE("Test rank") {
+  SUBCASE("1x1 matrix") {
+    vector<vector<double>> unitVector = {{1}};
+    SquareMatrix A(unitVector);
+    CHECK_EQ(A.rank(), 1);
+  }
+  SUBCASE("2x2 identity matrix") {
+    SquareMatrix A({{1, 0}, {0, 1}});
+    CHECK_EQ(A.rank(), 2);
+  }
+  SUBCASE("2x2 zero matrix") {
+    SquareMatrix A({{0, 0}, {0, 0}});
+    CHECK_EQ(A.rank(), 0);
+  }
+  SUBCASE("3x3 non-singular matrix") {
+    SquareMatrix A({{25, 125, 35}, {3, 4, 1}, {0, 1, 6}});
+    CHECK_EQ(A.rank(), 3);
+  }
+  SUBCASE("3x3 singular matrix") {
+    SquareMatrix A({{25, 125, 35}, {50, 250, 70}, {0, 1, 6}});
+    CHECK_EQ(A.rank(), 2);
+  }
+  SUBCASE("5x5 non-singular matrix") {
+    SquareMatrix A({{5, 2, 1, 4, 6},
+                    {9, 4, 2, 5, 2},
+                    {11, 5, 7, 3, 9},
+                    {5, 6, 6, 7, 2},
+                    {7, 5, 9, 3, 3}});
+    CHECK_EQ(A.rank(), 5);
+  }
+}
+
+TEST_CASE("Test trace") {
+  SUBCASE("1x1 matrix") {
+    vector<vector<double>> unitVector = {{1}};
+    SquareMatrix A(unitVector);
+    CHECK_EQ(A.trace(), 1);
+  }
+  SUBCASE("2x2 identity matrix") {
+    SquareMatrix A({{1, 0}, {0, 1}});
+    CHECK_EQ(A.trace(), 2);
+  }
+  SUBCASE("2x2 zero matrix") {
+    SquareMatrix A({{0, 0}, {0, 0}});
+    CHECK_EQ(A.trace(), 0);
+  }
+  SUBCASE("3x3 non-singular matrix") {
+    SquareMatrix A({{25, 125, 35}, {3, 4, 1}, {0, 1, 6}});
+    CHECK_EQ(A.trace(), 35);
+  }
+  SUBCASE("3x3 singular matrix") {
+    SquareMatrix A({{25, 125, 35}, {50, 250, 70}, {0, 1, 6}});
+    CHECK_EQ(A.trace(), 281);
+  }
+  SUBCASE("5x5 non-singular matrix") {
+    SquareMatrix A({{5, 2, 1, 4, 6},
+                    {9, 4, 2, 5, 2},
+                    {11, 5, 7, 3, 9},
+                    {5, 6, 6, 7, 2},
+                    {7, 5, 9, 3, 3}});
+    CHECK_EQ(A.trace(), 26);
+  }
+}
+
 TEST_CASE("Test diagonal dominance") {
   SUBCASE("3x4 DD augmented matrix") {
     SquareMatrix A({{-22, 3, 8, 27}, {3, -6, 2, -14}, {3, 3, 21, 48}}, true);
