@@ -87,11 +87,14 @@ class SquareMatrix {
   // Swaps columns of matrix
   void swap_col(int col1, int col2);
 
-  // Returns rank of matrix.
-  double rank();
+  // Returns rank of matrix. 
+  int rank();
 
-  // Returns determinant of matrix. If matrix is augmented, returns determinant
-  // of augmented matrix.
+  // Returns the trace. If matrix augmented, return trace of coefficient matrix
+  double trace();
+
+  // Returns determinant of matrix. If matrix augmented, return determinant
+  // of coefficient matrix.
   double det();
 
   // Inverse matrix using Gauss-Jordan Elimination

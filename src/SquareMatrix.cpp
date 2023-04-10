@@ -1023,3 +1023,44 @@ vector<double> SquareMatrix::solve_plu() {
   calculations += stringRep.str();
   return X;
 }
+
+double SquareMatrix::trace() {
+  std::stringstream stringRep;
+  stringRep << "Trace = ";
+  double trace = 0;
+
+  for (int i = 0; i < int(myMatrix.size()); i++) {
+    stringRep << myMatrix[i][i];
+    trace += myMatrix[i][i];
+    if (i != int(myMatrix.size()) - 1)
+      stringRep << " + ";
+  }
+
+  stringRep << trace << endl;
+  calculations += stringRep.str();
+  return trace;
+}
+
+int SquareMatrix::rank() {
+  SquareMatrix copy(myMatrix,isAugmented);
+  copy.to_ref();
+  std::stringstream stringRep;
+
+  const int row_size = myMatrix.size();
+  const int col_size = myMatrix[0].size();
+  int rank = row_size;
+
+  // count number of non-zero rows
+  for (int i = 0; i < row_size; i++) {
+    bool zero_row = 1;
+    for (int j = 0; j < col_size; j++) {
+      if (!approxEqual(copy.at(i, j), 0)) {
+        zero_row = 0;
+        break;
+      }
+    }
+    if (zero_row)
+      rank--;
+  }
+  return rank;
+}
