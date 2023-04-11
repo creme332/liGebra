@@ -91,6 +91,11 @@ TEST_CASE("Test rank") {
     SquareMatrix A({{0, 0}, {0, 0}});
     CHECK_EQ(A.rank(), 0);
   }
+  SUBCASE("2x3 matrix where rank(A) > rank(Coef. matrix)") {
+    SquareMatrix A({{3, -2, 3}, {6, -4, 4}}, true);
+    CHECK_EQ(A.rank(), 2);
+    // A.calc_cout();
+  }
   SUBCASE("3x3 non-singular matrix") {
     SquareMatrix A({{25, 125, 35}, {3, 4, 1}, {0, 1, 6}});
     CHECK_EQ(A.rank(), 3);
@@ -98,6 +103,10 @@ TEST_CASE("Test rank") {
   SUBCASE("3x3 singular matrix") {
     SquareMatrix A({{25, 125, 35}, {50, 250, 70}, {0, 1, 6}});
     CHECK_EQ(A.rank(), 2);
+  }
+  SUBCASE("3x4 augmented matrix") {
+    SquareMatrix A({{-2, 3, 8, 27}, {3, -5, 2, -14}, {3, 3, 21, 48}}, true);
+    CHECK_EQ(A.rank(), 3);
   }
   SUBCASE("5x5 non-singular matrix") {
     SquareMatrix A({{5, 2, 1, 4, 6},
@@ -126,10 +135,16 @@ TEST_CASE("Test trace") {
   SUBCASE("3x3 non-singular matrix") {
     SquareMatrix A({{25, 125, 35}, {3, 4, 1}, {0, 1, 6}});
     CHECK_EQ(A.trace(), 35);
+    // A.calc_cout();
   }
   SUBCASE("3x3 singular matrix") {
     SquareMatrix A({{25, 125, 35}, {50, 250, 70}, {0, 1, 6}});
     CHECK_EQ(A.trace(), 281);
+  }
+  SUBCASE("3x4 augmented matrix") {
+    SquareMatrix A({{-2, 3, 8, 27}, {3, -5, 2, -14}, {3, 3, 21, 48}}, true);
+    CHECK_EQ(A.trace(), 14);
+    // A.calc_cout();
   }
   SUBCASE("5x5 non-singular matrix") {
     SquareMatrix A({{5, 2, 1, 4, 6},
