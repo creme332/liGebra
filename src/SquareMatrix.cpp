@@ -1036,15 +1036,16 @@ double SquareMatrix::trace() {
       stringRep << " + ";
   }
 
-  stringRep << trace << endl;
+  stringRep << " = " << trace << endl;
   calculations += stringRep.str();
   return trace;
 }
 
 int SquareMatrix::rank() {
-  SquareMatrix copy(myMatrix,isAugmented);
-  copy.to_ref();
   std::stringstream stringRep;
+  SquareMatrix copy(myMatrix, isAugmented);
+  copy.to_ref();
+  stringRep << copy.get_calc();
 
   const int row_size = myMatrix.size();
   const int col_size = myMatrix[0].size();
@@ -1062,5 +1063,8 @@ int SquareMatrix::rank() {
     if (zero_row)
       rank--;
   }
+  stringRep << "Rank = number of non-zero rows = " << rank << endl;
+  calculations += stringRep.str();
+
   return rank;
 }
