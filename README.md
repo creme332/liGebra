@@ -41,11 +41,18 @@ A basic C++17 linear algebra calculator built for educational purposes. It uses 
 - Tested with `doctest` library. 
 
 # Installation
-To run this program, you will need a C++ compiler that supports $C++17$ installed on your machine. (MSVC or g++ compiler should work fine) 
+To run this program, you will need a compiler that supports $C\texttt{++17}$ installed on your machine. (MSVC or g++ compiler should work fine) 
 
 Once you have a compiler installed, you can download the source code found in the `src` folder from the GitHub repository.
 
 > ⚠ Do not include `test_runner.cpp` and the `test` folder in your project. 
+
+## Shared library
+If you want to use a shared library instead, you can generate the shared library with:
+```bash
+g++ -o libligebra.so -fpic -shared src/SquareMatrix.cpp -std=c++17
+```
+Then follow this [tutorial](https://betterprogramming.pub/how-to-build-a-linux-shared-library-f5b574b0c08e) on how to integrate the library in your code.
 
 # Usage
  Add `#include "src/SquareMatrix.h"` to your program. 
