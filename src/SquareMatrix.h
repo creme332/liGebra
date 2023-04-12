@@ -129,10 +129,7 @@ class SquareMatrix {
   // Solves a system of equation Ax = B using LU decomposition.
   vector<double> solve_plu();
 
-  // Returns a vector of eigenvalues of matrix
-  vector<double> eig_val();
-
-  // Returns true if matrix is strictly diagonally dominant.
+  // Returns true if matrix is diagonally dominant.
   bool is_diag_dominant(bool strict = false);
 
   // Makes matrix diagonally dominant
