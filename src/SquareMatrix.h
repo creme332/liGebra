@@ -87,7 +87,7 @@ class SquareMatrix {
   // Swaps columns of matrix
   void swap_col(int col1, int col2);
 
-  // Returns rank of matrix. 
+  // Returns rank of matrix.
   int rank();
 
   // Returns the trace. If matrix augmented, return trace of coefficient matrix

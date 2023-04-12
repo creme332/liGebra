@@ -107,7 +107,6 @@ vector<vector<double>> SquareMatrix::solve_approx(
           // calculate new value
           table[row][col] -=
               myMatrix[col][i] * (i < col ? table[row][i] : table[row - 1][i]);
-
         } else {
           // for jacobi method, use values from previous iteration to
           // calculate new value
