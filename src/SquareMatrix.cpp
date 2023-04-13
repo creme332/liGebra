@@ -659,7 +659,8 @@ void SquareMatrix::to_diag(bool strict) {
   if (is_diag_dominant(strict))  // if algorithm is successful, remove this line
     return;
   std::stringstream stringRep;
-  stringRep << "Converting matrix to strict diagonally dominant form: " << endl;
+  stringRep << "Converting matrix to" << (strict ? " strict " : "")
+            << "diagonally dominant form: " << endl;
   stringRep << stringify() << endl;
   const int row_count = myMatrix.size();
 
