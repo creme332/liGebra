@@ -3,12 +3,12 @@
 
 A basic C++17 linear algebra calculator built for educational purposes. It uses the command line interface to output step-by-step calculations.
 ```cpp
-    SquareMatrix A({{5, 6, -1}, {1, 4, 2}, {1, -2, 5}});
-    A.to_ref(); // convert matrix to row echelon form
-    A.calc_cout(); // output calculations
+SquareMatrix A({{5, 6, -1}, {1, 4, 2}, {1, -2, 5}});
+A.to_ref(); // convert matrix to row echelon form
+A.calc_cout(); // output calculations
 ```
 
-[View live code examples](binder)
+[View documentation](documentation.ipynb)
 
 # Features
 - Basic matrix operations (addition, subtraction, multiplication, transpose).
@@ -39,6 +39,7 @@ A basic C++17 linear algebra calculator built for educational purposes. It uses 
 	A.calc_cout(); // output calculations for both steps
 	```
 - Tested with `doctest` library. 
+- Github workflow to automatically update shared library.
 
 # Installation
 To run this program, you will need a compiler that supports $C\texttt{++17}$ installed on your machine. (MSVC or g++ compiler should work fine) 
@@ -67,6 +68,7 @@ g++ main.cpp tests/tests.cpp src/SquareMatrix.cpp -W
 
 # To-do
 - [ ] Review ddm algorithm
+- [ ] add ascci art
 - [ ] add binder link
 - [ ] Split tests into several files
 - [ ] Calculate eigenvalues + vectors
