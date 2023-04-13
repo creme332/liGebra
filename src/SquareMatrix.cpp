@@ -159,22 +159,67 @@ vector<vector<double>> SquareMatrix::solve_approx(
 
 string SquareMatrix::stringify(int dp) {
   std::stringstream stringRep;
-  const char separator = '|';
+  //! Corner characters consume 2 spaces
+  const string TopLeftCorner = "┌";
+  const string TopRightCorner = "┐";
+  const string BottomLeftCorner = "└";
+  const string BottomRightCorner = "┘";
   const char spaceChar = ' ';
-  const int nameWidth = 10;
-  const int rowCount = myMatrix.size();
+  const char pipe = '|';
 
+  const int columnWidth = 10;  // width of column in which values are placed
+  const int paddingWidth = 5;  // left and right padding
+  const int rowCount = myMatrix.size();
+  const int columnCount = int(myMatrix[0].size());
+
+  std::stringstream topRow;
+  std::stringstream bottomRow;
+
+  if (isAugmented) {
+    topRow << std::left << std::setw(2 * paddingWidth + 2)
+           << std::setfill(spaceChar) << TopLeftCorner;
+    bottomRow << std::left << std::setw(2 * paddingWidth + 2)
+              << std::setfill(spaceChar) << BottomLeftCorner;
+  } else {
+    topRow << std::left << std::setw(paddingWidth + 2)
+           << std::setfill(spaceChar) << TopLeftCorner;
+    bottomRow << std::left << std::setw(paddingWidth + 2)
+              << std::setfill(spaceChar) << BottomLeftCorner;
+  }
+
+  for (int row = 0; row < columnCount; row++) {
+    topRow << std::left << std::setw(columnWidth) << std::setfill(spaceChar)
+           << spaceChar;
+    bottomRow << std::left << std::setw(columnWidth) << std::setfill(spaceChar)
+              << spaceChar;
+  }
+
+  topRow << std::right << std::setw(paddingWidth - 2) << std::setfill(spaceChar)
+         << TopRightCorner;
+  bottomRow << std::right << std::setw(paddingWidth - 2)
+            << std::setfill(spaceChar) << BottomRightCorner;
+
+  stringRep << topRow.str() << endl;
+
+  // print values in matrix
   for (int row = 0; row < rowCount; row++) {
-    for (int col = 0; col < int(myMatrix[row].size()); col++) {
-      stringRep << std::left << std::setw(nameWidth) << std::setfill(spaceChar)
-                << std::fixed << std::setprecision(dp) << myMatrix[row][col];
+    stringRep << std::left << std::setw(paddingWidth) << std::setfill(spaceChar)
+              << pipe;
+    for (int col = 0; col < columnCount; col++) {
+      stringRep << std::left << std::setw(columnWidth)
+                << std::setfill(spaceChar) << std::fixed
+                << std::setprecision(dp) << myMatrix[row][col];
       if (col == rowCount - 1 && isAugmented) {
-        stringRep << std::left << std::setw(5) << std::setfill(spaceChar)
-                  << separator;
+        stringRep << std::left << std::setw(paddingWidth)
+                  << std::setfill(spaceChar) << pipe;
       }
     }
+    stringRep << std::left << std::setw(paddingWidth + 2)
+              << std::setfill(spaceChar) << pipe;
     stringRep << endl;
   }
+  stringRep << bottomRow.str() << endl;
+
   return stringRep.str();
 }
 
