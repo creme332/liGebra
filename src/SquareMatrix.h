@@ -134,4 +134,7 @@ class SquareMatrix {
 
   // Makes matrix diagonally dominant
   void to_diag(bool strict);
+
+  // Returns coefficient matrix (left matrix of augmented matrix)
+  SquareMatrix get_coef();
 };
