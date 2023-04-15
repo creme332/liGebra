@@ -573,7 +573,9 @@ vector<double> SquareMatrix::solve_cramer() {
   }
   std::stringstream stringRep;
   const double determinant = det();
-  stringRep << "Coefficient matrix: \n\n" << stringify() << endl;
+  stringRep << "Original matrix: \n\n" << stringify() << endl;
+
+  stringRep << "Coefficient matrix: \n\n" << (get_coef()).stringify() << endl;
 
   stringRep << "Determinant = " << determinant << endl << endl;
 
@@ -659,7 +661,7 @@ void SquareMatrix::to_diag(bool strict) {
   if (is_diag_dominant(strict))  // if algorithm is successful, remove this line
     return;
   std::stringstream stringRep;
-  stringRep << "Converting matrix to" << (strict ? " strict " : "")
+  stringRep << "Converting matrix to" << (strict ? " strict " : " ")
             << "diagonally dominant form: " << endl;
   stringRep << stringify() << endl;
   const int row_count = myMatrix.size();
@@ -976,6 +978,18 @@ std::unordered_map<char, SquareMatrix> SquareMatrix::get_PLU() {
   return answer;
 }
 
+SquareMatrix SquareMatrix::get_coef() {
+  const int rowCount = myMatrix.size();
+  SquareMatrix A(vector<vector<double>>(rowCount, vector<double>(rowCount, 0)));
+
+  for (int i = 0; i < rowCount; i++) {
+    for (int j = 0; j < rowCount; j++) {
+      A.set_val(i, j, myMatrix[i][j]);
+    }
+  }
+  return A;
+}
+
 vector<double> SquareMatrix::solve_plu() {
   if (!isAugmented) {
     throw std::invalid_argument("Matrix must be in augmented form");
@@ -986,12 +1000,7 @@ vector<double> SquareMatrix::solve_plu() {
   stringRep << "Solving AX = B" << endl;
 
   // extract coefficient matrix A from myMatrix
-  SquareMatrix A(vector<vector<double>>(rowCount, vector<double>(rowCount, 0)));
-  for (int i = 0; i < rowCount; i++) {
-    for (int j = 0; j < rowCount; j++) {
-      A.set_val(i, j, myMatrix[i][j]);
-    }
-  }
+  SquareMatrix A = get_coef();
   stringRep << "Matrix A" << endl << A.stringify() << endl;
 
   // extract column vector B from myMatrix
