@@ -13,8 +13,8 @@ int main(int argc, char** argv) {
 
   int test_result = context.run();  // run queries, or run tests unless --no-run
 
-  //if (test_result == 1)
-  //  throw std::runtime_error("Test failed");
+  if (test_result == 1)
+    throw std::runtime_error("Test failed");
 
   if (context.shouldExit())  // honor query flags and --exit
     return test_result;
