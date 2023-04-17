@@ -31,13 +31,7 @@ A.calc_cout(); // output calculations
 	- Iterative methods
 		- Gauss-Jacobi method.
 		- Gauss-Seidel method.
-- Chaining of operations is possible:
-	```cpp
-	SquareMatrix A({{5, 6, -1}, {1, 4, 2}, {1, -2, 5}});
-	A.to_ref(); // convert matrix to row echelon form
-	A.inv(); // inverse result from previous calculation
-	A.calc_cout(); // output calculations for both steps
-	```
+- Chaining of operations is possible.
 - Tested with `doctest` library. 
 - Github workflow to automatically update shared library.
 
@@ -62,22 +56,21 @@ Then follow this [tutorial](https://betterprogramming.pub/how-to-build-a-linux-s
 All files required for testing are found in the `tests` folder. Tests are using `doctest` library.
 To run your code as together with the tests (assuming you have a g++ compiler):
 ```linux
-g++ main.cpp tests/tests.cpp src/SquareMatrix.cpp -W
+g++ test_runner.cpp tests/tests.cpp src/SquareMatrix.cpp -W
 ```
 > ⚠ There should not be any other `.cpp` files with a `main()` function in your project. 
 
 # To-do
 - [ ] Review ddm algorithm
-- [ ] add ascci art
-- [ ] add binder link
+- [ ] Add binder link to documentation
+- [ ] Convert into a header-only library instead of shared library.
+- [ ] Update task.json : add task to update so.
 - [ ] Split tests into several files
-- [ ] Calculate eigenvalues + vectors
-- [ ] Diagonalize matrix 
-- [ ] Raise matrix to any power
+- [ ] Calculate eigenvalues + vectors using QR algorithm
 - [ ] Add tests for console output (Test string spit out by `calc_cout`)
 - [ ] Add bodmas support for matrix operations
 - [ ] Add support for complex numbers
-- [ ] Add feature to output in decimals improper fraction form
+- [ ] Add option to output in improper fraction form instead of decimals.
 
 Similar project: https://github.com/JNygard/MatrixCalculator
 
