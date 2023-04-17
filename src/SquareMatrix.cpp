@@ -612,6 +612,8 @@ bool SquareMatrix::is_diag_dominant(bool strict) {
   // Strict row diagonal dominance means that for each row, the absolute value
   // of the diagonal term is greater than the result of absolute values of other
   // terms
+
+  // if matrix is augmented, check coefficient matrix only
   const int row_count = myMatrix.size();
   // if matrix is augmented, ignore columns after row_count.
   for (int i = 0; i < row_count; i++) {
@@ -632,9 +634,17 @@ bool SquareMatrix::is_diag_dominant(bool strict) {
 }
 
 void SquareMatrix::to_diag(bool strict) {
+  if (is_diag_dominant(strict))  // if algorithm is successful, remove this line
+    return;
+  if (approxEqual(get_coef().det(),
+                  0))  // if coefficient matrix is singular, not possible.
+    throw (
+        "Singular matrix cannot be converted to strict diagonal dominance "
+        "form");
+
   // Returns index of dominant element in a row. Returns -1 if not found.
   auto get_dom_index = [](const vector<double> row, const int row_size,
-                          bool is_strict) {
+                          const bool is_strict) {
     // calculate result of absolute values on row
     double row_sum = 0;
     for (int j = 0; j < row_size; j++) {
@@ -655,11 +665,7 @@ void SquareMatrix::to_diag(bool strict) {
     }
     return -1;
   };
-  // TODO: If row has no dominant element, form a 0 at the position where
-  // another row has a dominant element
 
-  if (is_diag_dominant(strict))  // if algorithm is successful, remove this line
-    return;
   std::stringstream stringRep;
   stringRep << "Converting matrix to" << (strict ? " strict " : " ")
             << "diagonally dominant form: " << endl;
