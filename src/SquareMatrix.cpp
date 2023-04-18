@@ -633,149 +633,31 @@ bool SquareMatrix::is_diag_dominant(bool strict) {
   return 1;
 }
 
-void SquareMatrix::to_diag(bool strict) {
-  if (is_diag_dominant(strict))  // if algorithm is successful, remove this line
+void SquareMatrix::to_diag() {
+  if (is_diag_dominant())
     return;
   if (approxEqual(get_coef().det(),
                   0))  // if coefficient matrix is singular, not possible.
-    throw (
+    throw(
         "Singular matrix cannot be converted to strict diagonal dominance "
         "form");
 
-  // Returns index of dominant element in a row. Returns -1 if not found.
-  auto get_dom_index = [](const vector<double> row, const int row_size,
-                          const bool is_strict) {
-    // calculate result of absolute values on row
-    double row_sum = 0;
-    for (int j = 0; j < row_size; j++) {
-      row_sum += abs(row[j]);
-    }
-
-    // get column index of strictly dominant element in current row
-    for (int col = 0; col < row_size; col++) {
-      if (is_strict) {
-        if (abs(row[col]) > row_sum - abs(row[col])) {
-          return col;
-        }
-      } else {
-        if (abs(row[col]) >= row_sum - abs(row[col])) {
-          return col;
-        }
-      }
-    }
-    return -1;
-  };
-
   std::stringstream stringRep;
-  stringRep << "Converting matrix to" << (strict ? " strict " : " ")
-            << "diagonally dominant form: " << endl;
-  stringRep << stringify() << endl;
   const int row_count = myMatrix.size();
 
-  vector<int> dom(row_count, -1);
-  // dom[i] = j means that myMatrix[i][j] is the dominant element in row i.
-  //  j = -1 means that row i has no dominant element.
+  // convert matrix to reduced row echlon form
+  to_rref();
 
-  // initialise dom
-  for (int row = 0; row < row_count; row++) {
-    dom[row] = get_dom_index(myMatrix[row], row_count, strict);
-  }
-
-  // We want each row to have 1 dominant element so we should get rid of
-  // elements == -1 in dom
-  for (int i = 0; i < row_count; i++) {
-    if (dom[i] == -1) {
-      stringRep << "Row " << i + 1 << " has no dominant element" << endl;
-
-      // convert a non-zero element in row i to zero.
-
-      int colX = -1;  // column index of a non-zero element in row i
-      int rowX = -1;  // row index of a non-zero element in colX
-      for (int col = 0; col < row_count; col++) {
-        bool found = false;
-        if (!approxEqual(myMatrix[i][col], 0)) {
-          colX = col;
-          // get row index of any non-zero element in colX
-          for (int row = 0; row < row_count; row++) {
-            if (row != i && !approxEqual(myMatrix[row][colX], 0)) {
-              rowX = row;
-              found = true;
-              break;
-            }
-          }
-          if (found)
-            break;
-        }
-      }
-      assert(colX >= 0);
-      assert(rowX >= 0);
-
-      // Perform row operations to convert myMatrix[i][colX] to zero using rowX.
-
-      // myMatrix[rowX][colX] * R_i - myMatrix[i][colX] * R_rowX
-      const double scale_factor = myMatrix[i][colX];
-      stringRep << myMatrix[rowX][colX] << " * R" << i + 1 << " - "
-                << scale_factor << " * R" << rowX + 1 << endl;
-      scale_row(i, double(1 / myMatrix[rowX][colX]));
-      add_rows(i, rowX, -scale_factor);
-      stringRep << stringify() << endl;
-
-      // update dom
-      dom[i] = get_dom_index(myMatrix[i], row_count, strict);
-    }
-  }
-
-  stringRep << "Each row now contains 1 dominant element." << endl;
-
-  // identify and remove duplicates in array
-  bool changed;
-  do {
-    changed = false;
-
-    for (int i = 0; i < row_count; i++) {
-      for (int j = i + 1; j < row_count; j++) {
-        if (dom[i] == dom[j]) {
-          // count the number of zeroes in row i.
-          int zero_count = 0;
-          for (int k = 0; k < row_count; k++) {
-            if (approxEqual(myMatrix[i][k], 0) &&
-                approxEqual(myMatrix[j][k], 0))
-              zero_count++;
-          }
-
-          // If row has only two non-zero elements, do not perform row
-          // operations on row i.
-          // if (zero_count == row_count - 2)
-          //  break;
-
-          // Convert myMatrix[i][col] to a zero using row j.
-          const int col = dom[j];
-          const double scale_factor = myMatrix[i][col];
-          stringRep << myMatrix[j][col] << " * R" << i + 1 << " - "
-                    << myMatrix[i][col] << " * R" << j + 1 << endl;
-          scale_row(i, double(1 / myMatrix[j][col]));
-          add_rows(i, j, -scale_factor);
-
-          dom[i] = get_dom_index(myMatrix[i], row_count, strict);
-          changed = true;
-          stringRep << stringify() << endl;
-          break;
-        }
-      }
-      if (changed)
-        break;
-    }
-
-  } while (changed);
-
-  // At this point, each row has a single dominant element and each column has a
-  // single dominant element
-  // Rearrange rows to place each dominant element along leading diagonal.
+  // Starting from top row, add each row to the row directly below it
   for (int row = 0; row < row_count - 1; row++) {
-    swap_row(row, dom[row]);
+    stringRep << "R" << row << " + R" << row + 1 << endl;
+    add_rows(row, row + 1, 1);
+    stringRep << stringify() << endl;
   }
 
-  stringRep << "Final matrix after rearranging rows: " << endl;
+  // Add n-th row to (n-1)-th row
+  stringRep << "R" << row_count - 1 << " + R" << row_count - 2 << endl;
+  add_rows(row_count - 1, row_count - 2, 1);
   stringRep << stringify() << endl;
 
   calculations += stringRep.str();
