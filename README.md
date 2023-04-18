@@ -57,8 +57,13 @@ g++ test_runner.cpp tests/tests.cpp src/SquareMatrix.cpp -W
 ```
 > ⚠ There should not be any other `.cpp` files with a `main()` function in your project. 
 
+Comment the following lines in `test_runner.cpp`:
+```cpp
+  if (test_result == 1)
+    throw std::runtime_error("Test failed");
+```
+The above lines causes the github workflow in `test.yml` to fail whenever a test fails. They are not necessary for testing locally.
 # To-do
-- [ ] Review ddm algorithm
 - [ ] Add binder link to documentation
 - [ ] Convert into a header-only library instead of shared library.
 - [ ] Update task.json : add task to update so.
@@ -68,8 +73,6 @@ g++ test_runner.cpp tests/tests.cpp src/SquareMatrix.cpp -W
 - [ ] Add bodmas support for matrix operations
 - [ ] Add support for complex numbers
 - [ ] Add option to output in improper fraction form instead of decimals.
-
-Similar project: https://github.com/JNygard/MatrixCalculator
 
 # Limitations
 - No support for complex numbers.
