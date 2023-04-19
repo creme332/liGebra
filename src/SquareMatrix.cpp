@@ -648,6 +648,8 @@ void SquareMatrix::to_diag() {
   // convert matrix to reduced row echlon form
   to_rref();
 
+  stringRep << "Making matrix diagonally dominant" << endl;
+
   // Starting from top row, add each row to the row directly below it
   for (int row = 0; row < row_count - 1; row++) {
     stringRep << "R" << row << " + R" << row + 1 << endl;
