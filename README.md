@@ -52,8 +52,9 @@ Then follow this [tutorial](https://betterprogramming.pub/how-to-build-a-linux-s
 ## Testing
 All files required for testing are found in the `tests` folder. Tests are using `doctest` library.
 To run your code as together with the tests (assuming you have a g++ compiler):
-```linux
-g++ test_runner.cpp tests/tests.cpp src/SquareMatrix.cpp -W
+```bash
+g++ -std=c++17 test_runner.cpp tests/tests.cpp src/SquareMatrix.cpp -W
+./a.out
 ```
 > ⚠ There should not be any other `.cpp` files with a `main()` function in your project. 
 
@@ -65,8 +66,7 @@ Comment the following lines in `test_runner.cpp`:
 The above lines causes the github workflow in `test.yml` to fail whenever a test fails. They are not necessary for testing locally.
 # To-do
 - [ ] Add binder link to documentation
-- [ ] Convert into a header-only library instead of shared library.
-- [ ] Update task.json : add task to update so.
+- [x] Update task.json : add task to update so.
 - [ ] Split tests into several files
 - [ ] Calculate eigenvalues + vectors using QR algorithm
 - [ ] Add tests for console output (Test string spit out by `calc_cout`)
