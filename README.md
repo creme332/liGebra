@@ -1,7 +1,7 @@
 ﻿# liGebra
 ![Badge for test workflow](https://github.com/creme332/liGebra/actions/workflows/test.yml/badge.svg)
 
-A basic C++17 linear algebra calculator built for educational purposes. It uses the command line interface to output step-by-step calculations.
+A basic $C\texttt{++17}$ linear algebra calculator built for educational purposes. It uses the command line interface to output step-by-step calculations.
 ```cpp
 SquareMatrix A({{5, 6, -1}, {1, 4, 2}, {1, -2, 5}});
 A.to_ref(); // convert matrix to row echelon form
@@ -36,9 +36,16 @@ A.calc_cout(); // output calculations
 - Github workflow to automatically update shared library.
 
 # Installation
-To run this program, you will need a compiler that supports $C\texttt{++17}$ installed on your machine. (MSVC or g++ compiler should work fine) 
+To use this library, you will need a compiler that supports $C\texttt{++17}$ installed on your machine. (MSVC or g++ compiler should work fine) 
 
-Once you have a compiler installed, you can download the `src` folder from the GitHub repository. Add `#include "src/SquareMatrix.h"` to your  where you want to use the library. 
+Once you have a compiler installed, you can download the `src` folder from the GitHub repository. Import the `SquareMatrix.h` file in the `.cpp` where you want to use the library. For example, if your file structure is as follows:
+```
+src/
+├─ SquareMatrix.h
+├─ SquareMatrix.cpp
+main.cpp
+```
+then your `main.cpp` file should have `#include "src/SquareMatrix.h"` at the top.
 
 > ⚠ Do not include `test_runner.cpp` and the `test` folder in your project. 
 
@@ -51,7 +58,7 @@ Then follow this [tutorial](https://betterprogramming.pub/how-to-build-a-linux-s
 
 ## Testing
 All files required for testing are found in the `tests` folder. Tests are using `doctest` library.
-To run your code as together with the tests (assuming you have a g++ compiler):
+To run the tests (assuming you have a g++ compiler):
 ```bash
 g++ -std=c++17 test_runner.cpp tests/tests.cpp src/SquareMatrix.cpp -W
 ./a.out
