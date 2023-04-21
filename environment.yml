@@ -1,0 +1,5 @@
+name: ligebra
+channels:
+  - conda-forge
+dependencies:
+  - xeus-cling=0.15.1
