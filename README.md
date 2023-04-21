@@ -1,14 +1,14 @@
 ﻿# liGebra
 ![Badge for test workflow](https://github.com/creme332/liGebra/actions/workflows/test.yml/badge.svg)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/creme332/liGebra/495e7dc07fb51714e52ba4b2138332ca3e04c2a8?urlpath=lab%2Ftree%2Fdocumentation.ipynb)
 
-A basic $C\texttt{++17}$ linear algebra calculator built for educational purposes. It uses the command line interface to output step-by-step calculations.
+A basic $C\texttt{++17}$ linear algebra library built for educational purposes. It uses the command line interface to output step-by-step calculations.
 ```cpp
 SquareMatrix A({{5, 6, -1}, {1, 4, 2}, {1, -2, 5}});
 A.to_ref(); // convert matrix to row echelon form
 A.calc_cout(); // output calculations
 ```
-
-[View documentation](documentation.ipynb)
+[Try it online 🎉](https://mybinder.org/v2/gh/creme332/liGebra/495e7dc07fb51714e52ba4b2138332ca3e04c2a8?urlpath=lab%2Ftree%2Fdocumentation.ipynb)
 
 # Features
 - Basic matrix operations (addition, subtraction, multiplication, transpose).
@@ -36,7 +36,7 @@ A.calc_cout(); // output calculations
 - Github workflow to automatically update shared library.
 
 # Installation
-To use this library, you will need a compiler that supports $C\texttt{++17}$ installed on your machine. (MSVC or g++ compiler should work fine) 
+To use this library locally, you will need a compiler that supports $C\texttt{++17}$ installed on your machine. (MSVC or g++ compiler should work fine) 
 
 Once you have a compiler installed, you can download the `src` folder from the GitHub repository. Import the `SquareMatrix.h` file in the `.cpp` where you want to use the library. For example, if your file structure is as follows:
 ```
@@ -72,7 +72,7 @@ Comment the following lines in `test_runner.cpp`:
 ```
 The above lines causes the github workflow in `test.yml` to fail whenever a test fails. They are not necessary for testing locally.
 # To-do
-- [ ] Add binder link to documentation
+- [x] Add binder link to documentation
 - [x] Update task.json : add task to update so.
 - [ ] Split tests into several files
 - [ ] Calculate eigenvalues + vectors using QR algorithm
@@ -83,6 +83,7 @@ The above lines causes the github workflow in `test.yml` to fail whenever a test
 
 # Limitations
 - No support for complex numbers.
+- Can only convert matrices to non-strict diagonal dominant form.
 - Data type of numbers is limited to `double`.
 - Supports only square matrices for coefficient matrix.
 - Matrix operations do not follow BODMAS.
