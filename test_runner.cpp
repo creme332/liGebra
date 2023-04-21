@@ -13,8 +13,10 @@ int main(int argc, char** argv) {
 
   int test_result = context.run();  // run queries, or run tests unless --no-run
 
+  // --- Comment lines below when running tests locally ---
   if (test_result == 1)
     throw std::runtime_error("Test failed");
+  // --- Comment lines above when running tests locally ---
 
   if (context.shouldExit())  // honor query flags and --exit
     return test_result;
