@@ -1,8 +1,6 @@
 ﻿# liGebra
 
-![Badge for test workflow](https://github.com/creme332/liGebra/actions/workflows/test.yml/badge.svg)
-
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/creme332/liGebra/495e7dc07fb51714e52ba4b2138332ca3e04c2a8?urlpath=lab%2Ftree%2Fdocumentation.ipynb)
+![Badge for test workflow](https://github.com/creme332/liGebra/actions/workflows/test.yml/badge.svg)[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/creme332/liGebra/495e7dc07fb51714e52ba4b2138332ca3e04c2a8?urlpath=lab%2Ftree%2Fdocumentation.ipynb)
 
 A basic $C\texttt{++17}$ linear algebra library built for educational purposes. It uses the command line interface to output step-by-step calculations.
 
@@ -26,7 +24,6 @@ A.calc_cout(); // output calculations
   + Rank of matrix.
   + Trace of matrix.
 * Convert matrix to row echelon form and reduced row echelon form.
-* Make a matrix diagonally dominant using elementary row operations.
 * LU/PLU factorization (Crout's method) with partial pivoting.
 * Solving system of linear equations.
   + Gauss-Jordan elimination method.
@@ -35,9 +32,10 @@ A.calc_cout(); // output calculations
   + Iterative methods
     - Gauss-Jacobi method.
     - Gauss-Seidel method.
+* Pre-conditioning for iterative methods by making matrix strictly diagonally dominant.
 * Chaining of operations is possible.
-* Tested with `doctest` library. 
-* Github workflow to automatically update shared library.
+* Unit-testing with `doctest` library. 
+* Automatic update to shared library using Github Actions.
 # Installation
 
 To use this library locally, you will need a compiler that supports $C\texttt{++17}$ installed on your machine. (MSVC or g++ compiler should work fine) 
@@ -98,7 +96,6 @@ If you are using VS Code, assuming you have my `.vscode` folder, simply navigate
 * [ ] Calculate eigenvalues + vectors using QR algorithm
 * [ ] Add tests for console output (Test string spit out by `calc_cout`)
 * [ ] Add bodmas support for matrix operations
-* [ ] Add support for complex numbers
 * [ ] Add option to output in improper fraction form instead of decimals.
 # Limitations
 * No support for complex numbers.
