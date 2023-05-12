@@ -634,7 +634,9 @@ bool SquareMatrix::is_diag_dominant(bool strict) {
 }
 
 void SquareMatrix::to_diag() {
-  if (is_diag_dominant())
+  // https://math.stackexchange.com/a/4697266/996485
+
+  if (is_diag_dominant(true))
     return;
   if (approxEqual(get_coef().det(),
                   0))  // if coefficient matrix is singular, not possible.
@@ -649,18 +651,21 @@ void SquareMatrix::to_diag() {
   to_rref();
 
   stringRep << "Making matrix diagonally dominant" << endl;
+  const double e = 0.5;
 
-  // Starting from top row, add each row to the row directly below it
+  // Starting from top row, add each row to the e*[row directly below it]
   for (int row = 0; row < row_count - 1; row++) {
-    stringRep << "R" << row << " + R" << row + 1 << endl;
-    add_rows(row, row + 1, 1);
+    stringRep << "R" << row << " + " << e << " * R" << row + 1 << endl;
+    add_rows(row, row + 1, e);
     stringRep << stringify() << endl;
   }
 
-  // Add n-th row to (n-1)-th row
-  stringRep << "R" << row_count - 1 << " + R" << row_count - 2 << endl;
-  add_rows(row_count - 1, row_count - 2, 1);
-  stringRep << stringify() << endl;
+  // Starting from bottom row, add each row to the e*[row directly above it]
+  for (int row = row_count - 1; row > 0; row--) {
+    stringRep << "R" << row << " + " << e << " * R" << row - 1 << endl;
+    add_rows(row, row - 1, e);
+    stringRep << stringify() << endl;
+  }
 
   calculations += stringRep.str();
 }

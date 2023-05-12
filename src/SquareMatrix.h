@@ -132,7 +132,7 @@ class SquareMatrix {
   // Returns true if matrix is diagonally dominant.
   bool is_diag_dominant(bool strict = false);
 
-  // Converts matrix to non-strict diagonally dominant form
+  // Converts matrix to strict diagonally dominant form
   void to_diag();
 
   // Returns coefficient matrix (left matrix of augmented matrix)
