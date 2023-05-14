@@ -12,7 +12,7 @@ A.calc_cout(); // output calculations
 
 [View examples](documentation.ipynb)
 
-[Try interactive version 🎉](https://mybinder.org/v2/gh/creme332/liGebra/495e7dc07fb51714e52ba4b2138332ca3e04c2a8?urlpath=lab%2Ftree%2Fdocumentation.ipynb) 
+[Try interactive version 🎉](https://mybinder.org/v2/gh/creme332/liGebra/master?labpath=documentation.ipynb) 
 
 > ⚠ The interactive version of the documentation may take some time to load initially.
 
