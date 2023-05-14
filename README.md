@@ -1,6 +1,6 @@
 ﻿# liGebra
 
-![Badge for test workflow](https://github.com/creme332/liGebra/actions/workflows/test.yml/badge.svg)[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/creme332/liGebra/495e7dc07fb51714e52ba4b2138332ca3e04c2a8?urlpath=lab%2Ftree%2Fdocumentation.ipynb)
+![Badge for test workflow](https://github.com/creme332/liGebra/actions/workflows/test.yml/badge.svg)[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/creme332/liGebra/master?labpath=documentation.ipynb)
 
 A basic $C\texttt{++17}$ linear algebra library built for educational purposes. It uses the command line interface to output step-by-step calculations.
 
@@ -10,7 +10,11 @@ A.to_ref(); // convert matrix to row echelon form
 A.calc_cout(); // output calculations
 ```
 
-[Try it online 🎉](https://mybinder.org/v2/gh/creme332/liGebra/495e7dc07fb51714e52ba4b2138332ca3e04c2a8?urlpath=lab%2Ftree%2Fdocumentation.ipynb)
+[View examples](documentation.ipynb)
+
+[Try interactive version 🎉](https://mybinder.org/v2/gh/creme332/liGebra/495e7dc07fb51714e52ba4b2138332ca3e04c2a8?urlpath=lab%2Ftree%2Fdocumentation.ipynb) 
+
+> ⚠ The interactive version of the documentation may take some time to load initially.
 
 # Features
 * Basic matrix operations (addition, subtraction, multiplication, transpose).
@@ -87,6 +91,10 @@ Comment the following lines in `test_runner.cpp` :
 The above lines causes the github workflow in `test.yml` to fail whenever a test fails. They are not necessary for testing locally.
 
 If you are using VS Code, assuming you have my `.vscode` folder, simply navigate to `test_runner.cpp` and pres `F5` .
+
+## Binder configurations
+
+![confifurations for binder ](hub-config.png)
 
 # To-do
 * [x] Add binder link to documentation
