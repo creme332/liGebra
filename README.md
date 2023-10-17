@@ -16,7 +16,7 @@ A.calc_cout(); // output calculations
 
 > ⚠ The interactive version of the documentation may take some time to load initially.
 
-# Features
+## Features
 * Basic matrix operations (addition, subtraction, multiplication, transpose).
 * Inverse of a matrix.
   + Gauss-Jordan elimination method.
@@ -40,7 +40,8 @@ A.calc_cout(); // output calculations
 * Chaining of operations is possible.
 * Unit-testing with `doctest` library. 
 * Automatic update to shared library using Github Actions.
-# Installation
+  
+## Installation
 
 To use this library locally, you will need a compiler that supports $C\texttt{++17}$ installed on your machine. (MSVC or g++ compiler should work fine) 
 
@@ -57,7 +58,7 @@ then your `main.cpp` file should have `#include "src/SquareMatrix.h"` at the top
 
 > ⚠ Do not include `test_runner.cpp` and the `test` folder in your project. 
 
-## Shared library
+### Shared library
 
 If you want to use a shared library instead, you can generate the shared library with:
 
@@ -69,7 +70,7 @@ Then follow this [tutorial](https://betterprogramming.pub/how-to-build-a-linux-s
 
 If you are using VS Code, assuming you have my `.vscode` folder, simply navigate to `test_runner.cpp` and pres `F5` .
 
-## Testing
+### Testing
 
 All files required for testing are found in the `tests` folder. Tests are using `doctest` library.
 To run the tests (assuming you have a g++ compiler):
@@ -96,7 +97,7 @@ If you are using VS Code, assuming you have my `.vscode` folder, simply navigate
 
 ![confifurations for binder ](hub-config.png)
 
-# To-do
+## To-do
 * [x] Add binder link to documentation
 * [x] Update task.json : add task to update so.
 * [ ] [Reduce binder setup time](https://discourse.jupyter.org/t/how-to-reduce-mybinder-org-repository-startup-time/4956)
@@ -105,7 +106,7 @@ If you are using VS Code, assuming you have my `.vscode` folder, simply navigate
 * [ ] Add tests for console output (Test string spit out by `calc_cout`)
 * [ ] Add bodmas support for matrix operations
 * [ ] Add option to output in improper fraction form instead of decimals.
-# Limitations
+## Limitations
 * No support for complex numbers.
 * Can only convert matrices to non-strict diagonal dominant form.
 * Data type of numbers is limited to `double`.
